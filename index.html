@@ -311,6 +311,18 @@ details[open] summary svg{transform:rotate(90deg)}
 .caja-form h3{margin:0 0 12px;font-size:16px;font-weight:600}
 .desplazable{overflow-x:auto}
 
+/* ---------- lista desplegable propia (muestra 4 opciones y el resto con scroll) ---------- */
+.lista-desp{position:relative}
+.lista-btn{display:flex;align-items:center;text-align:left;cursor:pointer;padding-right:34px;background:var(--blanco) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234C636D' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 12px center no-repeat}
+.lista-btn[aria-expanded="true"]{border-color:var(--turquesa-oscuro);box-shadow:0 0 0 3px rgba(29,160,150,.18)}
+.lista-btn .vacia{color:var(--tinta-3)}
+.lista-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lista-opciones{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:30;margin:0;padding:4px;list-style:none;background:var(--blanco);border:1px solid var(--linea);border-radius:var(--radio-chico);box-shadow:var(--capa);max-height:calc(4 * 38px + 10px);overflow-y:auto;overscroll-behavior:contain}
+.lista-opciones li{display:flex;align-items:center;justify-content:space-between;gap:8px;height:38px;padding:0 10px;border-radius:5px;cursor:pointer}
+.lista-opciones li:hover,.lista-opciones li.activa{background:#EEF4F5}
+.lista-opciones li[aria-selected="true"]{color:var(--petroleo);font-weight:500}
+.lista-opciones li[aria-selected="true"]::after{content:"";width:14px;height:14px;flex:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230E5664' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/contain no-repeat}
+
 /* ---------- aviso flotante ---------- */
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--tinta);color:#fff;padding:11px 18px;border-radius:8px;font-size:14.5px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:100;max-width:calc(100% - 32px)}
 #toast.ver{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -1203,7 +1215,7 @@ function renderUsuarios(editando) {
       '<label class="campo"><span>Nombre</span><input class="entrada" name="nombre" value="' + esc(u.nombre) + '" placeholder="Juan Pérez"></label>' +
       '<label class="campo"><span>Correo</span><input class="entrada" name="email" type="email" value="' + esc(u.email) + '" placeholder="juan@gmail.com"' + (u.esDuena ? ' readonly' : '') + '></label>' +
       '<label class="campo"><span>Rol</span><select class="entrada" name="rol"' + (u.esDuena ? ' disabled' : '') + '>' + ROLES.map(r => '<option' + (r === u.rol ? ' selected' : '') + '>' + r + '</option>').join('') + '</select></label>' +
-      '<label class="campo"><span>Área</span><input class="entrada" name="area" list="lista-areas" value="' + esc(u.area) + '" placeholder="Comercial"><datalist id="lista-areas">' + areas.map(a => '<option value="' + esc(a) + '">').join('') + '</datalist></label>' +
+      '<div class="campo"><span id="et-area">Área</span>' + listaDesplegable('area', areas, u.area, 'Elige un área', 'et-area') + '</div>' +
       '<label class="campo"><span>Contraseña</span><span style="display:flex;gap:8px"><input class="entrada" name="clave" value="' + esc(u.clave) + '" placeholder="Mínimo 6 caracteres"><button type="button" class="btn" data-acc="generar-clave">Generar</button></span><small>Pásasela a la persona por un canal privado.</small></label>' +
       '<label class="campo"><span>Acceso</span><select class="entrada" name="activo"' + (u.esDuena ? ' disabled' : '') + '><option' + (u.activo === 'Sí' ? ' selected' : '') + ' value="Sí">Activo</option><option' + (u.activo === 'No' ? ' selected' : '') + ' value="No">Sin acceso</option></select></label>' +
       '<div class="todo mensaje-error" id="usu-error" hidden></div>' +
@@ -1230,6 +1242,64 @@ function renderUsuarios(editando) {
     } catch (e) { const er = $('#usu-error'); er.textContent = msgError(e); er.hidden = false; }
   });
 }
+
+/* Lista desplegable propia: un botón que abre las opciones; guarda el valor en un input oculto */
+function listaDesplegable(nombre, opciones, valor, textoVacio, idEtiqueta) {
+  const lista = opciones.slice();
+  if (valor && lista.indexOf(valor) === -1) lista.unshift(valor);   // el valor actual aunque ya no esté en la lista
+  return '<div class="lista-desp" data-lista="' + esc(nombre) + '">' +
+    '<input type="hidden" name="' + esc(nombre) + '" value="' + esc(valor || '') + '">' +
+    '<button type="button" class="entrada lista-btn" aria-haspopup="listbox" aria-expanded="false"' + (idEtiqueta ? ' aria-labelledby="' + idEtiqueta + '"' : '') + '>' +
+      '<span class="' + (valor ? '' : 'vacia') + '">' + esc(valor || textoVacio) + '</span></button>' +
+    '<ul class="lista-opciones" role="listbox" hidden>' +
+      lista.map(o => '<li role="option" data-valor="' + esc(o) + '" aria-selected="' + (o === valor) + '">' + esc(o) + '</li>').join('') +
+    '</ul></div>';
+}
+function abrirLista(caja) {
+  cerrarListas(caja);
+  const ul = caja.querySelector('.lista-opciones'), btn = caja.querySelector('.lista-btn');
+  ul.hidden = false; btn.setAttribute('aria-expanded', 'true');
+  const sel = ul.querySelector('[aria-selected="true"]') || ul.querySelector('li');
+  $$('li', ul).forEach(li => li.classList.toggle('activa', li === sel));
+  if (sel) sel.scrollIntoView({ block: 'nearest' });
+}
+function cerrarListas(excepto) {
+  $$('.lista-desp').forEach(c => {
+    if (c === excepto) return;
+    const ul = c.querySelector('.lista-opciones');
+    if (ul && !ul.hidden) { ul.hidden = true; c.querySelector('.lista-btn').setAttribute('aria-expanded', 'false'); }
+  });
+}
+function elegirEnLista(caja, li) {
+  const v = li.dataset.valor;
+  caja.querySelector('input[type="hidden"]').value = v;
+  const span = caja.querySelector('.lista-btn span');
+  span.textContent = v; span.className = '';
+  $$('li', caja).forEach(x => x.setAttribute('aria-selected', x === li));
+  cerrarListas();
+  caja.querySelector('.lista-btn').focus();
+}
+document.addEventListener('keydown', ev => {
+  const caja = ev.target.closest && ev.target.closest('.lista-desp');
+  if (!caja) return;
+  const ul = caja.querySelector('.lista-opciones');
+  const items = $$('li', ul);
+  if (!items.length) return;
+  let i = items.findIndex(li => li.classList.contains('activa'));
+  if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+    ev.preventDefault();
+    if (ul.hidden) { abrirLista(caja); return; }
+    i = ev.key === 'ArrowDown' ? Math.min(items.length - 1, i + 1) : Math.max(0, i - 1);
+    items.forEach((li, k) => li.classList.toggle('activa', k === i));
+    items[i].scrollIntoView({ block: 'nearest' });
+  } else if ((ev.key === 'Enter' || ev.key === ' ') && !ul.hidden && i >= 0) {
+    ev.preventDefault(); elegirEnLista(caja, items[i]);
+  } else if (ev.key === 'Escape' && !ul.hidden) {
+    ev.preventDefault(); ev.stopPropagation(); cerrarListas(); caja.querySelector('.lista-btn').focus();
+  } else if (ev.key === 'Tab') {
+    cerrarListas();
+  }
+}, true);
 
 function generarClave() {
   const sil = ['ta', 'le', 'lo', 'ca', 'mi', 'no', 'ri', 'su', 've', 'pa', 'do', 'fe', 'ru', 'ne'];
@@ -1306,8 +1376,29 @@ function alternarMenu(abrir) {
 /* =====================================================================
    EVENTOS (un solo manejador para todo)
    ===================================================================== */
+/* Solo cuenta como "clic afuera" si el clic empezó afuera (así no se cierra al seleccionar texto y soltar fuera) */
+let pulsoEnVelo = false;
+document.addEventListener('mousedown', ev => {
+  const t = ev.target;
+  pulsoEnVelo = !!(t.classList && t.classList.contains('modal-velo') && t.parentElement && t.parentElement.id === 'capa-modal');
+});
+
 document.addEventListener('click', async ev => {
   const t = ev.target;
+
+  // listas desplegables propias
+  const opcion = t.closest('.lista-opciones li');
+  if (opcion) { elegirEnLista(opcion.closest('.lista-desp'), opcion); return; }
+  const btnLista = t.closest('.lista-btn');
+  if (btnLista) {
+    const caja = btnLista.closest('.lista-desp');
+    if (caja.querySelector('.lista-opciones').hidden) abrirLista(caja); else cerrarListas();
+    return;
+  }
+  cerrarListas();
+
+  // clic afuera de una ventana: se cierra sin guardar
+  if (t.classList && t.classList.contains('modal-velo') && t.parentElement && t.parentElement.id === 'capa-modal' && pulsoEnVelo) { cerrarModal(); return; }
 
   // cerrar menús al hacer clic fuera
   if (!t.closest('#menu-usuario') && !t.closest('#btn-usuario') && !$('#menu-usuario').hidden) alternarMenu(false);
