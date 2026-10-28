@@ -310,6 +310,12 @@ main{max-width:1360px;margin:0 auto;padding:26px 24px 60px}
 .historial li::before{content:"";position:absolute;left:-6px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--blanco);border:2px solid var(--linea-fuerte)}
 .historial li b{color:var(--tinta);font-weight:500}
 .historial li small{display:block;color:var(--tinta-3);font-size:12.5px}
+.cambio{margin:6px 0 4px;padding:8px 10px;background:#F4F7F8;border-radius:6px;font-size:13.5px;line-height:1.45;word-break:break-word}
+.cambio .campo{display:block;font-weight:600;color:var(--tinta);margin-bottom:2px}
+.cambio .antes{color:var(--tinta-3)}
+.cambio .antes s{text-decoration-color:rgba(90,111,120,.6)}
+.cambio .ahora{color:var(--tinta)}
+.cambio i{font-style:normal;font-size:12px;color:var(--tinta-3);display:inline-block;min-width:44px}
 details summary{cursor:pointer;font-weight:600;font-size:15px;list-style:none;display:flex;align-items:center;gap:6px}
 details summary::-webkit-details-marker{display:none}
 details summary svg{width:16px;height:16px;transition:transform .15s}
@@ -698,9 +704,14 @@ function aplicarDatos(datos) {
   S.datos = datos;
   render();
   if (S.detalleId) {
-    if (datos.solicitudes.some(s => s.id === S.detalleId)) renderDetalle();
+    if (datos.solicitudes.some(s => s.id === S.detalleId)) { renderDetalle(); refrescarExtra(); }
     else cerrarCajon();
   }
+}
+/* Vuelve a traer la conversación y el historial de la solicitud abierta (después de editar, subir, mover, etc.) */
+async function refrescarExtra() {
+  const id = S.detalleId;
+  try { const ex = await conToken('verDetalle', id); if (S.detalleId === id) { S.detalleExtra = ex; renderDetalle(true); } } catch (e) {}
 }
 
 /* =====================================================================
@@ -1211,7 +1222,7 @@ function extraHtml(s, ex) {
     : '<p style="margin:0 0 12px;color:var(--tinta-3)">Aún no hay comentarios.</p>';
   const nuevo = puedeComentar ? '<div class="nuevo-comentario"><textarea class="entrada" id="nuevo-comentario" rows="2" style="min-height:70px" placeholder="Escribe un comentario o pregunta" aria-label="Nuevo comentario"></textarea><button class="btn btn-chico" data-acc="comentar">Comentar</button></div>' : '';
   const his = '<details><summary>' + ico('derecha') + 'Historial de cambios (' + ex.historial.length + ')</summary><ul class="historial" style="margin-top:12px">' +
-    ex.historial.map(h => '<li><b>' + esc(h.nombre) + '</b> ' + esc(h.accion.charAt(0).toLowerCase() + h.accion.slice(1)) + (h.detalle ? ': ' + esc(h.detalle) : '') + '<small>' + esc(fMomento(h.fecha)) + '</small></li>').join('') + '</ul></details>';
+    ex.historial.map(historialHtml).join('') + '</ul></details>';
   return '<section><h4>Conversación (' + ex.comentarios.length + ')</h4>' + com + nuevo + '</section><section>' + his + '</section>';
 }
 
@@ -1228,9 +1239,7 @@ async function guardarGestion(boton) {
   try {
     const datos = await ocupado(boton, 'Guardando…', () => conToken('gestionarSolicitud', s.id, c));
     $('#gestion-nota').value = '';
-    S.detalleExtra = null;
     aplicarDatos(datos);
-    abrirDetalle(s.id);
     toast(c.estado ? s.id + ' pasó a "' + c.estado + '".' : 'Cambios guardados.');
   } catch (e) { toast(msgError(e), true); }
 }
@@ -1340,6 +1349,20 @@ function ponerModal(html) {
   velo.innerHTML = tmp.firstElementChild.innerHTML;
 }
 function cerrarCapas() { cerrarModal(); cerrarCajon(); $('#capa-confirmar').innerHTML = ''; S.cal.modal = false; S.panelPersonas = ''; $('#capa-mes').innerHTML = ''; }
+
+/* Una línea del historial; si es una edición, muestra cada campo con lo de antes y lo de ahora */
+function historialHtml(h) {
+  const cab = '<b>' + esc(h.nombre) + '</b> ' + esc(h.accion.charAt(0).toLowerCase() + h.accion.slice(1));
+  const pie = '<small>' + esc(fMomento(h.fecha)) + '</small>';
+  const lineas = String(h.detalle || '').split('\n');
+  const cambios = lineas.map(l => l.match(/^([^:«]+): «([\s\S]*)» → «([\s\S]*)»$/));
+  if (h.detalle && cambios.every(Boolean)) {
+    const v = x => x ? esc(x).replace(/ ↵ /g, '<br>') : '<em style="color:var(--tinta-3)">(vacío)</em>';
+    return '<li>' + cab + ':' + cambios.map(m => '<div class="cambio"><span class="campo">' + esc(m[1]) + '</span>' +
+      '<div class="antes"><i>Antes:</i> <s>' + v(m[2]) + '</s></div><div class="ahora"><i>Ahora:</i> ' + v(m[3]) + '</div></div>').join('') + pie + '</li>';
+  }
+  return '<li>' + cab + (h.detalle ? ': ' + esc(h.detalle) : '') + pie + '</li>';
+}
 
 function confirmar(titulo, texto, textoBoton) {
   return new Promise(ok => {
