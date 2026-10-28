@@ -584,13 +584,25 @@ $('#form-login').addEventListener('submit', async ev => {
   const err = $('#login-error');
   if (!email || !clave) { err.textContent = 'Escribe tu correo y tu contraseña.'; err.hidden = false; return; }
   err.hidden = true;
+  const recordar = $('#login-recordar').checked;
+  // Muestra la pantalla de carga (logo + barra) mientras se revisa la contraseña
+  $('#login').hidden = true; $('#app').hidden = true; $('#arranque').hidden = false;
+  const inicio = Date.now();
   try {
-    const r = await ocupado($('#login-entrar'), 'Entrando…', () => api('iniciarSesion', email, clave));
+    const r = await api('iniciarSesion', email, clave);
     S.token = r.token;
-    guardarToken(r.token, $('#login-recordar').checked);
+    guardarToken(r.token, recordar);
     $('#login-clave').value = '';
+    // La pantalla de carga se ve al menos 2 segundos
+    const espera = 2000 - (Date.now() - inicio);
+    if (espera > 0) await new Promise(listo => setTimeout(listo, espera));
     mostrarApp(r.datos);
-  } catch (e) { err.textContent = msgError(e); err.hidden = false; }
+  } catch (e) {
+    // Contraseña incorrecta u otro error: vuelve al login con el mensaje
+    $('#arranque').hidden = true; $('#login').hidden = false;
+    err.textContent = msgError(e); err.hidden = false;
+    $('#login-clave').select();
+  }
 });
 
 async function iniciar() {
