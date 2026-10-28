@@ -360,7 +360,7 @@ details[open] summary svg{transform:rotate(90deg)}
     <div class="cuerpo">
       <div class="logo" role="img" aria-label="Talento Local"></div>
       <h1 id="login-titulo">Solicitudes</h1>
-      <p>Pide piezas, sigue tus pedidos y mira cuánto trabajo hay en la fila.</p>
+      <p>Pide piezas, sigue tus solicitudes y mira cuánto trabajo hay en la fila.</p>
       <form id="form-login" novalidate>
         <div id="login-error" class="mensaje-error" hidden></div>
         <label class="campo"><span>Correo</span>
@@ -628,7 +628,7 @@ function render() {
   $('#app-subtitulo').textContent = d.config.subtitulo;
   const nuevo = $('#btn-nuevo');
   nuevo.hidden = nivel() < 2;
-  nuevo.innerHTML = ico('mas') + '<span>Nuevo pedido</span>';
+  nuevo.innerHTML = ico('mas') + '<span>Nueva solicitud</span>';
   $('#btn-usuario').innerHTML = avatar(d.yo.nombre, d.yo.email) +
     '<span class="txt"><b>' + esc(d.yo.nombre) + '</b><span>' + esc(d.yo.rol) + '</span></span>';
   renderCarga();
@@ -643,24 +643,24 @@ function renderCarga() {
   let titulo, resumen;
   if (c.horasTotales > 0) {
     const dias = Math.max(1, Math.ceil(c.diasHabiles));
-    titulo = '<small>Agenda de pedidos ocupada hasta el</small>' + esc(fLarga(c.ocupadaHasta));
+    titulo = '<small>Agenda de solicitudes ocupada hasta el</small>' + esc(fLarga(c.ocupadaHasta));
     resumen = 'Hay <b>' + horasTxt(c.horasTotales) + ' de trabajo estimado</b> entre lo que está en proceso y la fila, unos ' +
-      plural(dias, 'día hábil', 'días hábiles') + ' con ' + horasTxt(c.horasPorDia) + ' al día para pedidos. ' +
+      plural(dias, 'día hábil', 'días hábiles') + ' con ' + horasTxt(c.horasPorDia) + ' al día para solicitudes. ' +
       (c.nuevoEmpezaria === c.ocupadaHasta
-        ? 'Un pedido que llegue hoy se podría empezar <b>ese mismo ' + esc(DIAS_L[partes(c.nuevoEmpezaria).getDay()]) + '</b>, apenas se libere espacio.'
-        : 'Un pedido que llegue hoy se podría empezar el <b>' + esc(fLarga(c.nuevoEmpezaria)) + '</b>.');
+        ? 'Una solicitud que llegue hoy se podría empezar <b>ese mismo ' + esc(DIAS_L[partes(c.nuevoEmpezaria).getDay()]) + '</b>, apenas se libere espacio.'
+        : 'Una solicitud que llegue hoy se podría empezar el <b>' + esc(fLarga(c.nuevoEmpezaria)) + '</b>.');
   } else {
-    titulo = '<small>Agenda de pedidos</small>Sin pedidos en espera';
-    resumen = 'No hay nada en proceso ni en la fila. Un pedido que llegue hoy se puede empezar hoy.';
+    titulo = '<small>Agenda de solicitudes</small>Sin solicitudes en espera';
+    resumen = 'No hay nada en proceso ni en la fila. Una solicitud que llegue hoy se puede empezar hoy.';
   }
   const g = nivel() >= 3;
   const cifras = [
     ['En proceso', c.enProceso, ''],
     ['En la fila', c.enFila, (g && c.porRevisar) ? plural(c.porRevisar, 'por revisar', 'por revisar') : ''],
     ['Esperando aprobación', c.enRevision, ''],
-    ['Atrasados', c.atrasadas, '', c.atrasadas > 0],
+    ['Atrasadas', c.atrasadas, '', c.atrasadas > 0],
     ['Podrían atrasarse', c.enRiesgo, '', c.enRiesgo > 0],
-    ['Listos en ' + mes, c.listasMes, '']
+    ['Listas en ' + mes, c.listasMes, '']
   ];
   $('#carga').innerHTML =
     '<div><h2>' + titulo + '</h2><p class="resumen">' + resumen + '</p>' + renderPista(c) + '</div>' +
@@ -693,14 +693,14 @@ function renderPista(c) {
     const tip = etiqueta + ' (' + b.estado + ', ' + horasTxt(b.horas) + (b.sinTamano ? ', tamaño supuesto' : '') + ')';
     bloques += '<button class="bloque b-' + slug(b.estado) + (b.prioridad === 'Urgente' ? ' urg' : '') + '" style="left:' + izq + '%;width:' + ancho + '%" data-abrir="' + esc(b.id) + '" title="' + esc(tip) + '" aria-label="' + esc(tip) + '"><span>' + esc(etiqueta) + '</span></button>';
   });
-  const marca = c.horasTotales > 0 ? '<span class="marcador" style="left:' + Math.min(pct(acum), 99.6) + '%" title="Aquí entraría un pedido nuevo"></span>' : '';
+  const marca = c.horasTotales > 0 ? '<span class="marcador" style="left:' + Math.min(pct(acum), 99.6) + '%" title="Aquí entraría una solicitud nueva"></span>' : '';
   return '<div class="pista"><div class="pista-barra">' + lineas + bloques + marca + '</div>' +
     '<div class="pista-dias" aria-hidden="true">' + etiquetas + '</div>' +
     '<div class="pista-pie"><span><i style="background:var(--petroleo)"></i>En proceso</span>' +
     '<span><i style="background:var(--turquesa-oscuro)"></i>En cola</span>' +
     '<span><i style="background:var(--turquesa-suave)"></i>Recibida, sin estimar</span>' +
     '<span><i style="background:var(--magenta);height:3px;vertical-align:5px"></i>Urgente</span>' +
-    (marca ? '<span><i class="m"></i>Aquí entraría un pedido nuevo</span>' : '') +
+    (marca ? '<span><i class="m"></i>Aquí entraría una solicitud nueva</span>' : '') +
     '<span>Cada columna es un día hábil de ' + horasTxt(c.horasPorDia) + '</span></div></div>';
 }
 
@@ -721,7 +721,7 @@ function renderHerramientas() {
   const incluidas = gente.filter(p => !S.excluidos.has(p.email));
   const todas = incluidas.length === gente.length;
   let etiqueta = 'Todas las personas';
-  if (!incluidas.length) etiqueta = 'Nadie';
+  if (gente.length && !incluidas.length) etiqueta = 'Nadie';
   else if (!todas) etiqueta = incluidas.length === 1 ? incluidas[0].nombre : incluidas.length + ' de ' + gente.length + ' personas';
   const pila = incluidas.slice(0, 4).map(p => avatar(p.nombre, p.email, 'c')).join('');
   const sel = (id, opciones, valor, todasTxt) => '<select class="entrada" id="' + id + '" aria-label="' + esc(todasTxt) + '"><option value="">' + esc(todasTxt) + '</option>' +
@@ -731,7 +731,7 @@ function renderHerramientas() {
     '<div class="segmentado" role="group" aria-label="Vista">' +
       '<button data-vista="fila" aria-pressed="' + (S.vista === 'fila') + '">Fila de espera</button>' +
       '<button data-vista="tablero" aria-pressed="' + (S.vista === 'tablero') + '">Tablero</button></div>' +
-    '<label class="buscar">' + ico('buscar') + '<span class="sr">Buscar</span><input class="entrada" id="f-texto" placeholder="Buscar pedido" value="' + esc(S.texto) + '"></label>' +
+    '<label class="buscar">' + ico('buscar') + '<span class="sr">Buscar</span><input class="entrada" id="f-texto" placeholder="Buscar solicitud" value="' + esc(S.texto) + '"></label>' +
     '<div class="envoltura-menu"><button class="personas-btn' + (todas ? '' : ' filtrado') + '" id="btn-personas" aria-haspopup="true" aria-expanded="' + S.panelPersonas + '">' +
       '<span class="pila">' + pila + '</span><span>' + esc(etiqueta) + '</span>' + ico('abajo').replace('<svg ', '<svg style="width:15px;height:15px" ') + '</button>' +
       (S.panelPersonas ? panelPersonas(gente) : '') + '</div>' +
@@ -759,8 +759,8 @@ function panelPersonas(gente) {
     '<div class="lista">' + gente.map(p =>
       '<label class="opcion" data-nombre="' + esc(p.nombre.toLowerCase()) + '"><input type="checkbox" data-persona="' + esc(p.email) + '"' + (S.excluidos.has(p.email) ? '' : ' checked') + '>' +
       avatar(p.nombre, p.email, 'c') + '<span class="n">' + esc(p.nombre) + (p.email === S.datos.yo.email ? ' (tú)' : '') + '</span><span class="cuenta">' + p.n + '</span></label>').join('') +
-      (gente.length ? '' : '<div style="padding:8px;color:var(--tinta-3)">Aún no hay pedidos.</div>') + '</div>' +
-    '<div class="pie"><button class="btn btn-fantasma btn-chico" data-acc="solo-yo">Solo mis pedidos</button><button class="btn btn-fantasma btn-chico" data-acc="cerrar-personas">Listo</button></div></div>';
+      (gente.length ? '' : '<div style="padding:8px;color:var(--tinta-3)">Aún no hay solicitudes.</div>') + '</div>' +
+    '<div class="pie"><button class="btn btn-fantasma btn-chico" data-acc="solo-yo">Solo mis solicitudes</button><button class="btn btn-fantasma btn-chico" data-acc="cerrar-personas">Listo</button></div></div>';
 }
 
 function filtrarListaPersonas() {
@@ -799,16 +799,16 @@ function renderFila() {
 
   let html = '';
   html += grupo('En proceso ahora', enProceso, 'proceso',
-    enProceso.length ? plural(enProceso.length, 'pedido', 'pedidos') + ', ' + horasTxt(sumaH(enProceso)) : '',
-    'Nada en proceso', nivel() >= 3 ? 'Toma el primero de la fila y cámbialo a "En proceso".' : 'Cuando se empiece un pedido aparecerá aquí.');
-  if (revision.length) html += grupo('Esperando aprobación', revision, 'revision', plural(revision.length, 'pedido enviado', 'pedidos enviados') + ' a revisar', '', '');
+    enProceso.length ? plural(enProceso.length, 'solicitud', 'solicitudes') + ', ' + horasTxt(sumaH(enProceso)) : '',
+    'Nada en proceso', nivel() >= 3 ? 'Toma la primera de la fila y cámbiala a "En proceso".' : 'Cuando se empiece una solicitud, aparecerá aquí.');
+  if (revision.length) html += grupo('Esperando aprobación', revision, 'revision', plural(revision.length, 'solicitud enviada', 'solicitudes enviadas') + ' a revisar', '', '');
   html += grupo('Fila de espera', fila, 'fila',
-    fila.length ? plural(fila.length, 'pedido', 'pedidos') + ', ' + horasTxt(sumaH(fila)) + ' estimadas' : '',
-    filtrado ? 'No hay pedidos en la fila con estos filtros' : 'La fila está vacía',
-    filtrado ? 'Prueba quitando filtros.' : (nivel() >= 2 ? 'Los pedidos nuevos llegan aquí en orden.' : ''));
-  if (pausadas.length) html += grupo('Pausados', pausadas, 'pausa', plural(pausadas.length, 'pedido', 'pedidos'), '', '');
-  html += grupoPlegable('Listos en los últimos 30 días', listas, 'lista', 'verListas');
-  if (rechazadas.length) html += grupoPlegable('Rechazados o retirados', rechazadas, 'rechazo', 'verRechazadas');
+    fila.length ? plural(fila.length, 'solicitud', 'solicitudes') + ', ' + horasTxt(sumaH(fila)) + ' estimadas' : '',
+    filtrado ? 'No hay solicitudes en la fila con estos filtros' : 'La fila está vacía',
+    filtrado ? 'Prueba quitando filtros.' : (nivel() >= 2 ? 'Las solicitudes nuevas llegan aquí en orden.' : ''));
+  if (pausadas.length) html += grupo('Pausadas', pausadas, 'pausa', plural(pausadas.length, 'solicitud', 'solicitudes'), '', '');
+  html += grupoPlegable('Listas en los últimos 30 días', listas, 'lista', 'verListas');
+  if (rechazadas.length) html += grupoPlegable('Rechazadas o retiradas', rechazadas, 'rechazo', 'verRechazadas');
   $('#contenido').innerHTML = html;
 }
 
@@ -819,9 +819,9 @@ function grupo(titulo, items, tipo, meta, vacioT, vacioS) {
     cuerpo = '<div class="vacio"><b>' + esc(vacioT) + '</b>' + esc(vacioS || '') + '</div>';
   } else {
     const cab = {
-      proceso: 'Termina aprox.', revision: 'En revisión desde', fila: 'Empieza aprox.', pausa: 'Pausado desde', lista: 'Terminado', rechazo: 'Cerrado'
+      proceso: 'Termina aprox.', revision: 'En revisión desde', fila: 'Empieza aprox.', pausa: 'Pausada desde', lista: 'Terminada', rechazo: 'Cerrado'
     }[tipo];
-    cuerpo = '<div class="tabla" role="list"><div class="fila encabezado" aria-hidden="true"><span>' + (tipo === 'fila' ? 'Lugar' : '') + '</span><span>Pedido</span><span>Pidió</span><span class="c-prio">Prioridad</span><span>Lo necesita</span><span class="c-tam">Tamaño</span><span>' + cab + '</span><span></span></div>' +
+    cuerpo = '<div class="tabla" role="list"><div class="fila encabezado" aria-hidden="true"><span>' + (tipo === 'fila' ? 'Lugar' : '') + '</span><span>Solicitud</span><span>Pidió</span><span class="c-prio">Prioridad</span><span>Lo necesita</span><span class="c-tam">Tamaño</span><span>' + cab + '</span><span></span></div>' +
       items.map(s => filaHtml(s, tipo)).join('') + '</div>';
   }
   return '<section class="grupo"><header><h3>' + esc(titulo) + '</h3><span class="meta">' + esc(meta || '') + '</span></header>' + cuerpo + '</section>';
@@ -829,7 +829,7 @@ function grupo(titulo, items, tipo, meta, vacioT, vacioS) {
 
 function grupoPlegable(titulo, items, tipo, bandera) {
   const abierto = S[bandera];
-  return '<section class="grupo"><header><h3>' + esc(titulo) + '</h3><span class="meta">' + plural(items.length, 'pedido', 'pedidos') + '</span>' +
+  return '<section class="grupo"><header><h3>' + esc(titulo) + '</h3><span class="meta">' + plural(items.length, 'solicitud', 'solicitudes') + '</span>' +
     (items.length ? '<button class="btn btn-chico" data-plegar="' + bandera + '">' + (abierto ? 'Ocultar' : 'Mostrar') + '</button>' : '') + '</header>' +
     (abierto && items.length ? '<div class="tabla" role="list">' + items.map(s => filaHtml(s, tipo)).join('') + '</div>' : '') + '</section>';
 }
@@ -840,16 +840,16 @@ function filaHtml(s, tipo) {
     : '<span class="pos punto" style="color:' + ({ proceso: 'var(--petroleo)', revision: 'var(--ciruela)', pausa: 'var(--ambar)', lista: 'var(--verde)', rechazo: '#9AA6AB' }[tipo]) + '"></span>';
   const sub = [
     '<span>' + esc(s.id) + '</span>', '<span>' + esc(s.tipo) + '</span>', '<span>' + esc(s.area) + '</span>',
-    s.estado === 'Recibida' ? '<span style="color:var(--turquesa-texto);font-weight:500">Nuevo, sin revisar</span>' : '',
+    s.estado === 'Recibida' ? '<span style="color:var(--turquesa-texto);font-weight:500">Nueva, sin revisar</span>' : '',
     s.comentarios ? '<span class="ico">' + ico('chat') + s.comentarios + '</span>' : '',
     s.archivos.length ? '<span class="ico">' + ico('clip') + s.archivos.length + '</span>' : ''
   ].join('');
   const tarde = s.atrasada ? ' tarde' : '';
-  const necesita = s.fechaRequerida ? '<div class="dato' + tarde + '">' + esc(fCorta(s.fechaRequerida)) + '<small>' + (s.atrasada ? 'Atrasado' : (s.enRiesgo ? 'Podría atrasarse' : '')) + '</small></div>' : '<div class="dato"><small>Sin fecha</small></div>';
+  const necesita = s.fechaRequerida ? '<div class="dato' + tarde + '">' + esc(fCorta(s.fechaRequerida)) + '<small>' + (s.atrasada ? 'Atrasada' : (s.enRiesgo ? 'Podría atrasarse' : '')) + '</small></div>' : '<div class="dato"><small>Sin fecha</small></div>';
   const tam = s.tamano ? '<div class="dato">' + esc(s.tamano) + '<small>' + horasTxt(s.horas) + '</small></div>' : '<div class="dato"><small>Sin estimar</small></div>';
   let est = '';
   if (tipo === 'fila') est = '<div class="dato">' + esc(fCorta(s.inicioEstimado)) + '<small>Lista aprox. ' + esc(fCorta(s.finEstimado)) + '</small></div>';
-  else if (tipo === 'proceso') est = '<div class="dato">' + esc(fCorta(s.finEstimado)) + '<small>' + (s.fechaComprometida ? 'Comprometido ' + esc(fCorta(s.fechaComprometida)) : 'Empezó ' + esc(fMomento(s.inicio))) + '</small></div>';
+  else if (tipo === 'proceso') est = '<div class="dato">' + esc(fCorta(s.finEstimado)) + '<small>' + (s.fechaComprometida ? 'Comprometida ' + esc(fCorta(s.fechaComprometida)) : 'Empezó ' + esc(fMomento(s.inicio))) + '</small></div>';
   else if (tipo === 'lista') est = '<div class="dato">' + esc(fMomento(s.termino)) + '</div>';
   else est = '<div class="dato">' + esc(fMomento(s.actualizada)) + '</div>';
   const acc = (g && tipo === 'fila') ? '<div class="acciones-fila"><button class="btn" data-mover="arriba" data-id="' + esc(s.id) + '" aria-label="Subir en la fila" title="Subir"' + (s.posicion === 1 ? ' disabled' : '') + '>' + ico('arriba') + '</button>' +
@@ -880,7 +880,7 @@ function renderTablero() {
     else if (e === 'Lista') {
       const total = items.length;
       items = items.filter(s => String(s.termino).slice(0, 10) >= haceTreinta).sort((a, b) => String(b.termino).localeCompare(String(a.termino)));
-      if (total > items.length) nota = 'Se muestran los terminados de los últimos 30 días.';
+      if (total > items.length) nota = 'Se muestran las terminadas de los últimos 30 días.';
     } else items.sort((a, b) => String(b.actualizada).localeCompare(String(a.actualizada)));
     const horas = ['Recibida', 'En cola', 'En proceso'].includes(e) && items.length ? horasTxt(items.reduce((t, s) => t + s.horas, 0)) : '';
     return '<div class="columna" data-columna="' + esc(e) + '"><header><span aria-hidden="true" style="width:10px;height:10px;border-radius:50%;flex:none;background:' + colorColumna(e) + '"></span><h3>' + esc(e) + '</h3><span class="n">' + items.length + '</span><span class="h">' + horas + '</span></header>' +
@@ -889,7 +889,7 @@ function renderTablero() {
   $('#contenido').innerHTML =
     '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;font-size:14px;color:var(--tinta-3)">' +
       '<span>' + (g ? 'Arrastra una tarjeta a otra columna para cambiar su estado.' : 'Toca una tarjeta para ver el detalle.') + '</span>' +
-      '<label class="check" style="margin-left:auto"><input type="checkbox" id="ver-cerradas"' + (S.verCerradas ? ' checked' : '') + '> Ver pausados y rechazados' + (pausadas ? ' (' + pausadas + ' pausados)' : '') + '</label></div>' +
+      '<label class="check" style="margin-left:auto"><input type="checkbox" id="ver-cerradas"' + (S.verCerradas ? ' checked' : '') + '> Ver pausadas y rechazadas' + (pausadas ? ' (' + pausadas + ' pausadas)' : '') + '</label></div>' +
     '<div class="tablero">' + html + '</div>';
   $('#ver-cerradas').addEventListener('change', e => { S.verCerradas = e.target.checked; renderTablero(); });
   if (g) activarArrastre();
@@ -900,7 +900,7 @@ function colorColumna(e) {
 }
 
 function tarjetaHtml(s, arrastrable) {
-  const fecha = s.fechaRequerida ? '<span class="' + (s.atrasada ? 'tarde' : '') + '">' + (s.atrasada ? 'Atrasado, ' : '') + esc(fCorta(s.fechaRequerida)) + '</span>' : '<span>Sin fecha</span>';
+  const fecha = s.fechaRequerida ? '<span class="' + (s.atrasada ? 'tarde' : '') + '">' + (s.atrasada ? 'Atrasada, ' : '') + esc(fCorta(s.fechaRequerida)) + '</span>' : '<span>Sin fecha</span>';
   const chips = ['<span class="chip">' + esc(s.tipo) + '</span>', s.tamano ? '<span class="chip">' + esc(s.tamano) + ' · ' + horasTxt(s.horas) + '</span>' : ''].join('');
   return '<div class="tarjeta' + (s.prioridad === 'Urgente' && !CERRADOS.includes(s.estado) ? ' urgente' : '') + '" tabindex="0" data-abrir="' + esc(s.id) + '"' + (arrastrable ? ' draggable="true"' : '') + '>' +
     '<div class="arriba"><span>' + (s.posicion ? '<b style="color:var(--petroleo)">#' + s.posicion + '</b> ' : '') + esc(s.id) + '</span>' + (s.prioridad !== 'Normal' ? prioTag(s.prioridad) : '') + '</div>' +
@@ -930,7 +930,7 @@ function activarArrastre() {
 }
 
 /* =====================================================================
-   DETALLE DE UN PEDIDO
+   DETALLE DE UNA SOLICITUD
    ===================================================================== */
 async function abrirDetalle(id) {
   S.detalleId = id; S.detalleExtra = null;
@@ -958,14 +958,14 @@ function renderDetalle(soloExtra) {
     ['Tipo de pieza', esc(s.tipo)],
     ['Área', esc(s.area)],
     ['Pidió', '<span class="persona">' + avatar(s.solicitanteNombre, s.solicitanteEmail, 'c') + esc(s.solicitanteNombre) + '</span>'],
-    ['Pedido el', esc(fMomento(s.creada))],
-    ['Lo necesita para', s.fechaRequerida ? esc(fLarga(s.fechaRequerida)) + (s.atrasada ? ' (atrasado)' : s.enRiesgo ? ' (podría atrasarse)' : '') : 'Sin fecha', s.atrasada || s.enRiesgo],
+    ['Solicitada el', esc(fMomento(s.creada))],
+    ['Lo necesita para', s.fechaRequerida ? esc(fLarga(s.fechaRequerida)) + (s.atrasada ? ' (atrasada)' : s.enRiesgo ? ' (podría atrasarse)' : '') : 'Sin fecha', s.atrasada || s.enRiesgo],
     ['Tamaño', s.tamano ? esc(s.tamano) + ', ' + horasTxt(s.horas) : 'Sin estimar (se cuenta como ' + esc(S.datos.config.tamanoDefecto.toLowerCase()) + ')']
   ];
   if (s.fechaComprometida) datos.push(['Fecha comprometida', esc(fLarga(s.fechaComprometida))]);
   if (s.posicion) datos.push(['Lugar en la fila', '#' + s.posicion + ' de ' + S.datos.carga.enFila], ['Empieza aprox.', esc(fLarga(s.inicioEstimado))]);
   if (s.estado === 'En proceso') datos.push(['Empezó', esc(fMomento(s.inicio))], ['Termina aprox.', esc(fLarga(s.finEstimado))]);
-  if (s.estado === 'Lista') datos.push(['Terminado', esc(fMomento(s.termino))]);
+  if (s.estado === 'Lista') datos.push(['Terminada', esc(fMomento(s.termino))]);
 
   const gestion = g ? gestionHtml(s) : '';
   const links = s.links ? '<section><h4>Links y referencias</h4><div class="texto">' + enlazar(s.links) + '</div></section>' : '';
@@ -973,8 +973,8 @@ function renderDetalle(soloExtra) {
     (puedeSubir ? '<label class="btn btn-chico">' + ico('clip') + '<span>Adjuntar archivo</span><input type="file" id="subir-detalle" multiple hidden></label> <small style="color:var(--tinta-3)">Hasta ' + S.datos.config.maxMb + ' MB cada uno</small>' : '') + '</section>';
 
   const acciones = [];
-  if (puedeEditar) acciones.push('<button class="btn" data-acc="editar">' + ico('editar') + 'Editar pedido</button>');
-  if (esMio && s.estado === 'Recibida' && !g) acciones.push('<button class="btn btn-peligro" data-acc="retirar">Retirar pedido</button>');
+  if (puedeEditar) acciones.push('<button class="btn" data-acc="editar">' + ico('editar') + 'Editar solicitud</button>');
+  if (esMio && s.estado === 'Recibida' && !g) acciones.push('<button class="btn btn-peligro" data-acc="retirar">Retirar solicitud</button>');
   if (nivel() >= 4) acciones.push('<button class="btn btn-peligro" data-acc="eliminar">' + ico('basura') + 'Eliminar</button>');
 
   $('#capa-cajon').innerHTML = '<div class="velo" data-cerrar-cajon><aside class="cajon" role="dialog" aria-modal="true" aria-labelledby="titulo-detalle">' +
@@ -1010,7 +1010,7 @@ function gestionHtml(s) {
       '<label class="campo"><span>Prioridad</span><select class="entrada" id="g-prioridad">' + ['Normal', 'Alta', 'Urgente'].map(p => '<option' + (p === s.prioridad ? ' selected' : '') + '>' + p + '</option>').join('') + '</select></label>' +
       '<label class="campo"><span>Fecha comprometida</span><input class="entrada" type="date" id="g-fecha" value="' + esc(s.fechaComprometida) + '"></label>' +
     '</div>' +
-    '<label class="campo"><span>Nota para quien pidió <small>(opcional, queda como comentario y va en el aviso)</small></span><textarea class="entrada" id="gestion-nota" rows="2" style="min-height:64px" placeholder="Ej: lo dejé en pausa hasta que llegue el texto final."></textarea></label>' +
+    '<label class="campo"><span>Nota para quien pidió <small>(opcional, queda como comentario y va en el aviso)</small></span><textarea class="entrada" id="gestion-nota" rows="2" style="min-height:64px" placeholder="Ej: la dejé en pausa hasta que llegue el texto final."></textarea></label>' +
     '<div class="pie"><span class="lugar">' + (s.posicion ? 'Lugar ' + s.posicion + ' de ' + S.datos.carga.enFila + ' en la fila' : '') + '</span>' +
       (s.posicion ? '<button class="btn btn-chico" data-mover="arriba" data-id="' + esc(s.id) + '"' + (s.posicion === 1 ? ' disabled' : '') + '>' + ico('arriba') + 'Subir</button><button class="btn btn-chico" data-mover="abajo" data-id="' + esc(s.id) + '"' + (s.posicion === S.datos.carga.enFila ? ' disabled' : '') + '>' + ico('abajo') + 'Bajar</button>' : '') +
       '<button class="btn btn-primario btn-chico" data-acc="guardar-gestion">Guardar cambios</button></div></section>';
@@ -1076,7 +1076,7 @@ function abrirFormulario(s) {
   const v = s || { titulo: '', descripcion: '', tipo: '', area: d.config.areas.includes(d.yo.area) ? d.yo.area : '', prioridad: 'Normal', fechaRequerida: '', links: '' };
   const opts = (arr, val, ph) => '<option value="">' + ph + '</option>' + arr.map(o => '<option' + (o === val ? ' selected' : '') + '>' + esc(o) + '</option>').join('');
   $('#capa-modal').innerHTML = '<div class="modal-velo"><form class="modal" id="form-pedido" novalidate role="dialog" aria-modal="true" aria-labelledby="titulo-form">' +
-    '<header><h2 id="titulo-form">' + (edit ? 'Editar ' + esc(s.id) : 'Nuevo pedido') + '</h2><button type="button" class="btn btn-fantasma btn-icono" data-acc="cerrar-modal" aria-label="Cerrar">' + ico('cerrar') + '</button></header>' +
+    '<header><h2 id="titulo-form">' + (edit ? 'Editar ' + esc(s.id) : 'Nueva solicitud') + '</h2><button type="button" class="btn btn-fantasma btn-icono" data-acc="cerrar-modal" aria-label="Cerrar">' + ico('cerrar') + '</button></header>' +
     '<div class="cuerpo"><div class="form-rejilla">' +
       '<label class="campo todo"><span>¿Qué necesitas?</span><input class="entrada" name="titulo" maxlength="140" value="' + esc(v.titulo) + '" placeholder="Video de cierre del curso de operador de grúa horquilla"><span class="error-campo" data-error="titulo"></span></label>' +
       '<label class="campo"><span>Tipo de pieza</span><select class="entrada" name="tipo">' + opts(d.config.tipos, v.tipo, 'Elige un tipo') + '</select><span class="error-campo" data-error="tipo"></span></label>' +
@@ -1089,7 +1089,7 @@ function abrirFormulario(s) {
       (edit ? '' : '<div class="campo todo"><span>Archivos <small>(opcional, hasta ' + d.config.maxMb + ' MB cada uno)</small></span><label class="btn btn-chico" style="align-self:flex-start">' + ico('clip') + '<span>Adjuntar archivos</span><input type="file" name="archivos" multiple hidden></label><div class="lista-archivos" id="lista-archivos"></div></div>') +
       '<div class="todo mensaje-error" id="form-error" hidden></div>' +
     '</div></div>' +
-    '<footer><button type="button" class="btn" data-acc="cerrar-modal">Cancelar</button><button type="submit" class="btn btn-primario" id="btn-enviar">' + (edit ? 'Guardar cambios' : 'Enviar pedido') + '</button></footer></form></div>';
+    '<footer><button type="button" class="btn" data-acc="cerrar-modal">Cancelar</button><button type="submit" class="btn btn-primario" id="btn-enviar">' + (edit ? 'Guardar cambios' : 'Enviar solicitud') + '</button></footer></form></div>';
 
   const form = $('#form-pedido');
   form.dataset.prioridad = v.prioridad;
@@ -1111,7 +1111,7 @@ function abrirFormulario(s) {
     if (!datos.titulo) errores.titulo = 'Escribe qué necesitas.';
     if (!datos.tipo) errores.tipo = 'Elige el tipo de pieza.';
     if (!datos.area) errores.area = 'Elige el área.';
-    if (!datos.descripcion) errores.descripcion = 'Cuenta el detalle para poder estimarlo.';
+    if (!datos.descripcion) errores.descripcion = 'Cuenta el detalle para poder estimar el trabajo.';
     $$('[data-error]', form).forEach(e => { e.textContent = errores[e.dataset.error] || ''; });
     if (Object.keys(errores).length) { form.querySelector('[name="' + Object.keys(errores)[0] + '"]').focus(); return; }
     const archivos = fi ? Array.from(fi.files) : [];
@@ -1133,7 +1133,7 @@ function abrirFormulario(s) {
         });
         cerrarModal(); aplicarDatos(r.datos);
         const nuevo = r.datos.solicitudes.find(x => x.id === r.id);
-        toast('Pedido enviado. Quedó en el lugar ' + (nuevo && nuevo.posicion ? nuevo.posicion : '?') + ' de la fila.');
+        toast('Solicitud enviada. Quedó en el lugar ' + (nuevo && nuevo.posicion ? nuevo.posicion : '?') + ' de la fila.');
       }
     } catch (e) { mostrarErrorForm(msgError(e)); }
   });
@@ -1142,7 +1142,7 @@ function abrirFormulario(s) {
 
 function ayudaPrioridad(p) {
   if (p === 'Urgente') return 'Pasa adelante de todo en la fila. Úsala solo si de verdad no puede esperar.';
-  if (p === 'Alta') return 'Pasa adelante de los pedidos normales.';
+  if (p === 'Alta') return 'Pasa adelante de las solicitudes normales.';
   return 'Entra al final de la fila, en orden de llegada.';
 }
 function mostrarErrorForm(t) { const e = $('#form-error'); if (e) { e.textContent = t; e.hidden = false; } else toast(t, true); }
@@ -1184,7 +1184,7 @@ function renderUsuarios(editando) {
   const areas = S.datos.config.areas;
   ponerModal('<div class="modal-velo"><div class="modal ancho" role="dialog" aria-modal="true" aria-labelledby="titulo-usu">' +
     '<header><h2 id="titulo-usu">Personas y accesos</h2><button class="btn btn-fantasma btn-icono" data-acc="cerrar-modal" aria-label="Cerrar">' + ico('cerrar') + '</button></header><div class="cuerpo">' +
-    '<div class="roles-ayuda"><div><b>Lector:</b> solo mira.</div><div><b>Solicitante:</b> crea pedidos y los edita mientras están en "Recibida".</div><div><b>Gestor:</b> además cambia estados, estima, prioriza y ordena la fila.</div><div><b>Administrador:</b> todo, incluido personas y configuración.</div></div>' +
+    '<div class="roles-ayuda"><div><b>Lector:</b> solo mira.</div><div><b>Solicitante:</b> crea solicitudes y las edita mientras están en "Recibida".</div><div><b>Gestor:</b> además cambia estados, estima, prioriza y ordena la fila.</div><div><b>Administrador:</b> todo, incluido personas y configuración.</div></div>' +
     '<form class="caja-form" id="form-usuario" novalidate><h3>' + (esNuevo ? 'Agregar persona' : 'Editar a ' + esc(u.nombre)) + '</h3><div class="form-rejilla">' +
       '<label class="campo"><span>Nombre</span><input class="entrada" name="nombre" value="' + esc(u.nombre) + '" placeholder="Juan Pérez"></label>' +
       '<label class="campo"><span>Correo</span><input class="entrada" name="email" type="email" value="' + esc(u.email) + '" placeholder="juan@gmail.com"' + (u.esDuena ? ' readonly' : '') + '></label>' +
@@ -1236,10 +1236,10 @@ function abrirConfig() {
       '<label class="campo"><span>Texto bajo el nombre</span><input class="entrada" name="subtitulo" value="' + esc(c.subtitulo) + '"></label>' +
       '<label class="campo"><span>Tipos de pieza <small>(uno por línea)</small></span><textarea class="entrada" name="tipos" rows="7">' + esc(c.tipos.join('\n')) + '</textarea></label>' +
       '<label class="campo"><span>Áreas <small>(una por línea)</small></span><textarea class="entrada" name="areas" rows="7">' + esc(c.areas.join('\n')) + '</textarea></label>' +
-      '<label class="campo"><span>Horas de un pedido chico</span><input class="entrada" name="horas_chico" type="number" min="0.5" step="0.5" value="' + c.horas.chico + '"></label>' +
-      '<label class="campo"><span>Horas de un pedido mediano</span><input class="entrada" name="horas_mediano" type="number" min="0.5" step="0.5" value="' + c.horas.mediano + '"></label>' +
-      '<label class="campo"><span>Horas de un pedido grande</span><input class="entrada" name="horas_grande" type="number" min="0.5" step="0.5" value="' + c.horas.grande + '"></label>' +
-      '<label class="campo"><span>Horas al día para pedidos</span><input class="entrada" name="horas_por_dia" type="number" min="0.5" step="0.5" value="' + c.horasPorDia + '"><small>Lo que queda después de reuniones y otras tareas.</small></label>' +
+      '<label class="campo"><span>Horas de un trabajo chico</span><input class="entrada" name="horas_chico" type="number" min="0.5" step="0.5" value="' + c.horas.chico + '"></label>' +
+      '<label class="campo"><span>Horas de un trabajo mediano</span><input class="entrada" name="horas_mediano" type="number" min="0.5" step="0.5" value="' + c.horas.mediano + '"></label>' +
+      '<label class="campo"><span>Horas de un trabajo grande</span><input class="entrada" name="horas_grande" type="number" min="0.5" step="0.5" value="' + c.horas.grande + '"></label>' +
+      '<label class="campo"><span>Horas al día para solicitudes</span><input class="entrada" name="horas_por_dia" type="number" min="0.5" step="0.5" value="' + c.horasPorDia + '"><small>Lo que queda después de reuniones y otras tareas.</small></label>' +
       '<label class="campo"><span>Si no tiene tamaño, contar como</span><select class="entrada" name="tamano_defecto">' + ['Chico', 'Mediano', 'Grande'].map(t => '<option' + (t === c.tamanoDefecto ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></label>' +
       '<label class="campo"><span>Correos del resumen semanal</span><input class="entrada" name="correos_resumen" value="' + esc(c.correosResumen) + '" placeholder="jefe@talentolocal.cl"><small>Se envía los lunes a las 8. Separa con comas.</small></label>' +
       '<label class="campo todo"><span>Link de la app <small>(para los botones de los correos)</small></span><input class="entrada" name="url_app" value="' + esc(c.urlApp) + '" placeholder="https://script.google.com/macros/s/…/exec"></label>' +
@@ -1368,14 +1368,14 @@ document.addEventListener('click', async ev => {
       return;
     }
     if (a === 'retirar') {
-      if (!await confirmar('Retirar pedido', 'El pedido sale de la fila y queda como rechazado. ¿Seguro?', 'Retirar pedido')) return;
-      try { aplicarDatos(await conToken('retirarSolicitud', S.detalleId)); toast('Pedido retirado.'); } catch (e) { toast(msgError(e), true); }
+      if (!await confirmar('Retirar solicitud', 'La solicitud sale de la fila y queda como rechazada. ¿Seguro?', 'Retirar solicitud')) return;
+      try { aplicarDatos(await conToken('retirarSolicitud', S.detalleId)); toast('Solicitud retirada.'); } catch (e) { toast(msgError(e), true); }
       return;
     }
     if (a === 'eliminar') {
       const id = S.detalleId;
       if (!await confirmar('Eliminar ' + id, 'Se borra de la planilla y no se puede recuperar. El historial queda guardado.', 'Eliminar')) return;
-      try { aplicarDatos(await conToken('eliminarSolicitud', id)); cerrarCajon(); toast(id + ' eliminado.'); } catch (e) { toast(msgError(e), true); }
+      try { aplicarDatos(await conToken('eliminarSolicitud', id)); cerrarCajon(); toast(id + ' eliminada.'); } catch (e) { toast(msgError(e), true); }
       return;
     }
   }
