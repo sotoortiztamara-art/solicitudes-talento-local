@@ -469,7 +469,7 @@ details[open] summary svg{transform:rotate(90deg)}
    ===================================================================== */
 const CLAVE_TOKEN = 'tl_solicitudes_token';
 const S = {
-  token: null, datos: null, vista: 'fila', texto: '', excluidos: new Set(), tipo: '', prioridad: '',
+  token: null, datos: null, vista: 'fila', texto: '', excluidos: new Set(), estado: '', prioridad: '',
   verCerradas: false, verListas: false, verRechazadas: false, detalleId: null, detalleExtra: null,
   panelPersonas: '', buscarPersona: '',   // panelPersonas: '' cerrado, 'h' en la barra, 'm' en la ventana del mes
   procesando: 0,
@@ -479,6 +479,7 @@ const ESTADOS = ['Recibida', 'En cola', 'En proceso', 'En revisión', 'Lista', '
 const ESTADOS_GESTION = ESTADOS.filter(e => e !== 'Retirada');   // "Retirada" la pone solo quien pidió
 const EN_FILA = ['Recibida', 'En cola'];
 const CERRADOS = ['Lista', 'Rechazada', 'Retirada'];
+const ESTADOS_FILTRO = ['Recibida', 'En cola', 'En proceso', 'En revisión', 'Pausada', 'Lista'];   // los que aparecen en el calendario
 const ROLES = ['Lector', 'Solicitante', 'Gestor', 'Administrador'];
 const COLORES = ['#0E5664', '#137A73', '#A2205C', '#7A3B69', '#2F6B8A', '#5B7079', '#8A5A2B', '#3E6B4F'];
 const DIAS_C = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
@@ -815,7 +816,7 @@ function renderMesFiltros() {
   $('#mes-filtros').innerHTML =
     '<label class="buscar">' + ico('buscar') + '<span class="sr">Buscar</span><input class="entrada" id="m-texto" placeholder="Buscar solicitud" value="' + esc(S.texto) + '"></label>' +
     controlPersonas('m') +
-    filtroLista('m-tipo', d.config.tipos, S.tipo, 'Todos los tipos') +
+    filtroLista('m-estado', ESTADOS_FILTRO, S.estado, 'Todos los estados') +
     filtroLista('m-prioridad', ['Urgente', 'Alta', 'Normal'], S.prioridad, 'Toda prioridad');
   $('#m-texto').addEventListener('input', e => { S.texto = e.target.value; renderContenido(); });
   activarBuscarPersona();
@@ -928,7 +929,7 @@ function renderHerramientas() {
       '<button data-vista="tablero" aria-pressed="' + (S.vista === 'tablero') + '">Tablero</button></div>' +
     '<label class="buscar">' + ico('buscar') + '<span class="sr">Buscar</span><input class="entrada" id="f-texto" placeholder="Buscar solicitud" value="' + esc(S.texto) + '"></label>' +
     controlPersonas('h') +
-    filtroLista('f-tipo', d.config.tipos, S.tipo, 'Todos los tipos') +
+    filtroLista('f-estado', ESTADOS_FILTRO, S.estado, 'Todos los estados') +
     filtroLista('f-prioridad', ['Urgente', 'Alta', 'Normal'], S.prioridad, 'Toda prioridad') +
     '<div class="fin"><span>Actualizado ' + esc(d.actualizado) + '</span><button class="btn btn-fantasma btn-icono" data-acc="recargar" aria-label="Actualizar" title="Actualizar">' + ico('recargar') + '</button></div>';
   $('#f-texto').addEventListener('input', e => { S.texto = e.target.value; renderContenido(); });
@@ -959,7 +960,7 @@ function visibles() {
   const q = S.texto.trim().toLowerCase();
   return S.datos.solicitudes.filter(s =>
     !S.excluidos.has(s.solicitanteEmail) &&
-    (!S.tipo || s.tipo === S.tipo) &&
+    (!S.estado || s.estado === S.estado) &&
     (!S.prioridad || s.prioridad === S.prioridad) &&
     (!q || [s.id, s.titulo, s.descripcion, s.solicitanteNombre, s.tipo, s.area].join(' ').toLowerCase().indexOf(q) !== -1));
 }
@@ -1450,7 +1451,7 @@ function elegirEnLista(caja, li) {
 /* Qué hacer cuando cambia una lista: filtros de arriba y limpiar errores de formularios */
 document.addEventListener('cambio', ev => {
   const d = ev.detail || {};
-  if (d.nombre === 'f-tipo' || d.nombre === 'm-tipo') { S.tipo = d.valor; otrosFiltros(d.nombre); renderContenido(); }
+  if (d.nombre === 'f-estado' || d.nombre === 'm-estado') { S.estado = d.valor; otrosFiltros(d.nombre); renderContenido(); }
   else if (d.nombre === 'f-prioridad' || d.nombre === 'm-prioridad') { S.prioridad = d.valor; otrosFiltros(d.nombre); renderContenido(); }
   const form = ev.target.closest && ev.target.closest('form');
   if (form) { const e = form.querySelector('[data-error="' + d.nombre + '"]'); if (e) e.textContent = ''; }
