@@ -151,23 +151,17 @@ main{max-width:1360px;margin:0 auto;padding:26px 24px 60px}
 .cifras li.alerta b{color:var(--magenta)}
 .cifras li.alerta span{color:var(--magenta)}
 .pista{margin-top:22px}
-.pista-barra{position:relative;height:44px;background:var(--blanco);border:1px solid var(--linea);border-radius:8px;overflow:hidden}
-.pista-dia{position:absolute;top:0;bottom:0;border-left:1px solid #EDF2F3}
-.pista-dia.lunes{border-left-color:var(--linea-fuerte)}
-.bloque{position:absolute;top:6px;bottom:6px;border-radius:4px;border:0;padding:0 7px;display:flex;align-items:center;font-size:12px;font-weight:500;color:#fff;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer;text-align:left;box-shadow:inset -2px 0 0 #fff}
+.pista-barra{display:flex;gap:4px;height:44px;padding:5px;background:var(--blanco);border:1px solid var(--linea);border-radius:8px;overflow:hidden}
+.bloque{flex:1 1 0;min-width:26px;max-width:220px;border-radius:4px;border:0;padding:0 8px;display:flex;align-items:center;font-size:12px;font-weight:500;color:#fff;overflow:hidden;white-space:nowrap;cursor:pointer;text-align:left}
 .bloque span{overflow:hidden;text-overflow:ellipsis}
 .b-en-proceso{background:var(--petroleo)}
 .b-en-cola{background:var(--turquesa-oscuro)}
 .b-recibida{background:var(--turquesa-suave);color:var(--petroleo)}
-.bloque.urg{box-shadow:inset 0 3px 0 var(--magenta),inset -2px 0 0 #fff}
+.bloque.urg{box-shadow:inset 0 3px 0 var(--magenta)}
 .bloque:hover{filter:brightness(1.08)}
-.marcador{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed var(--magenta)}
-.pista-dias{position:relative;height:22px;margin-top:6px;font-size:12px;color:var(--tinta-3)}
-.pista-dias span{position:absolute;top:0;white-space:nowrap;transform:translateX(2px)}
-.pista-dias span.mes{color:var(--tinta);font-weight:500}
-.pista-pie{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:6px;font-size:13px;color:var(--tinta-3);align-items:center}
+.siguiente{flex:0 0 auto;display:flex;align-items:center;padding:0 12px;border:1.5px dashed var(--linea-fuerte);border-radius:4px;font-size:12px;color:var(--tinta-3);white-space:nowrap}
+.pista-pie{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:8px;font-size:13px;color:var(--tinta-3);align-items:center}
 .pista-pie i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
-.pista-pie .m{width:0;height:12px;border-left:2px dashed var(--magenta);border-radius:0}
 
 /* ---------- herramientas ---------- */
 .herramientas{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--linea);margin-bottom:18px;position:sticky;top:0;background:var(--fondo);z-index:20}
@@ -201,7 +195,7 @@ main{max-width:1360px;margin:0 auto;padding:26px 24px 60px}
 .grupo .meta{font-size:14px;color:var(--tinta-3)}
 .grupo>header button{margin-left:auto}
 .tabla{background:var(--blanco);border:1px solid var(--linea);border-radius:var(--radio);overflow:hidden}
-.fila{display:grid;grid-template-columns:52px minmax(0,1fr) 190px 96px 118px 112px 136px 76px;align-items:center;gap:14px;padding:12px 16px 12px 8px;border-top:1px solid var(--linea);cursor:pointer;position:relative}
+.fila{display:grid;grid-template-columns:52px minmax(0,1fr) 200px 100px 124px 150px 76px;align-items:center;gap:14px;padding:12px 16px 12px 8px;border-top:1px solid var(--linea);cursor:pointer;position:relative}
 .fila:first-child{border-top:0}
 .fila:hover{background:#F7FAFA}
 .fila.encabezado{cursor:default;background:#F7FAFA;font-size:13px;color:var(--tinta-3);padding-top:8px;padding-bottom:8px}
@@ -316,6 +310,10 @@ details[open] summary svg{transform:rotate(90deg)}
 .lista-btn{display:flex;align-items:center;text-align:left;cursor:pointer;padding-right:34px;background:var(--blanco) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234C636D' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 12px center no-repeat}
 .lista-btn[aria-expanded="true"]{border-color:var(--turquesa-oscuro);box-shadow:0 0 0 3px rgba(29,160,150,.18)}
 .lista-btn .vacia{color:var(--tinta-3)}
+.lista-btn[disabled]{background-color:#F2F5F6;color:var(--tinta-3);cursor:not-allowed}
+.herramientas .lista-desp.filtro{min-width:165px}
+.herramientas .lista-desp.filtro .lista-btn{height:38px}
+.herramientas .lista-desp.filtro .lista-opciones{min-width:220px;right:auto}
 .lista-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lista-opciones{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:30;margin:0;padding:4px;list-style:none;background:var(--blanco);border:1px solid var(--linea);border-radius:var(--radio-chico);box-shadow:var(--capa);max-height:calc(4 * 38px + 10px);overflow-y:auto;overscroll-behavior:contain}
 .lista-opciones li{display:flex;align-items:center;justify-content:space-between;gap:8px;height:38px;padding:0 10px;border-radius:5px;cursor:pointer}
@@ -330,8 +328,8 @@ details[open] summary svg{transform:rotate(90deg)}
 
 /* ---------- pantallas chicas ---------- */
 @media (max-width:1100px){
-  .fila{grid-template-columns:44px minmax(0,1fr) 160px 110px 120px 70px}
-  .fila .c-prio,.fila .c-tam{display:none}
+  .fila{grid-template-columns:44px minmax(0,1fr) 160px 110px 130px 70px}
+  .fila .c-prio{display:none}
 }
 @media (max-width:860px){
   .carga{grid-template-columns:1fr}
@@ -492,7 +490,6 @@ function fMomento(ts) {
   const d = partes(dia);
   return d.getDate() + ' ' + MESES_C[d.getMonth()] + (hora ? ' ' + hora : '');
 }
-function horasTxt(h) { const r = Math.round(h * 10) / 10; return String(r).replace('.', ',') + ' h'; }
 function plural(n, uno, varios) { return n + ' ' + (n === 1 ? uno : varios); }
 function estadoTag(e) { return '<span class="estado e-' + slug(e) + '">' + esc(e) + '</span>'; }
 function prioTag(p) {
@@ -662,30 +659,28 @@ function render() {
   renderContenido();
 }
 
-/* ---------- La carga: hasta cuándo está ocupada ---------- */
+/* ---------- La carga de trabajo, en cantidades ---------- */
 function renderCarga() {
   const d = S.datos, c = d.carga;
   const mes = MESES_L[partes(d.hoy).getMonth()];
   let titulo, resumen;
-  if (c.horasTotales > 0) {
-    const dias = Math.max(1, Math.ceil(c.diasHabiles));
-    titulo = '<small>Agenda de solicitudes ocupada hasta el</small>' + esc(fLarga(c.ocupadaHasta));
-    resumen = 'Hay <b>' + horasTxt(c.horasTotales) + ' de trabajo estimado</b> entre lo que está en proceso y la fila, unos ' +
-      plural(dias, 'día hábil', 'días hábiles') + ' con ' + horasTxt(c.horasPorDia) + ' al día para solicitudes. ' +
-      (c.nuevoEmpezaria === c.ocupadaHasta
-        ? 'Una solicitud que llegue hoy se podría empezar <b>ese mismo ' + esc(DIAS_L[partes(c.nuevoEmpezaria).getDay()]) + '</b>, apenas se libere espacio.'
-        : 'Una solicitud que llegue hoy se podría empezar el <b>' + esc(fLarga(c.nuevoEmpezaria)) + '</b>.');
+  if (c.pendientes > 0) {
+    titulo = '<small>Carga de trabajo</small>' + plural(c.pendientes, 'solicitud pendiente', 'solicitudes pendientes');
+    const trozos = ['<b>' + c.enProceso + ' en proceso</b>', '<b>' + c.enFila + ' esperando en la fila</b>'];
+    if (c.enRevision) trozos.push('<b>' + c.enRevision + ' esperando aprobación</b>');
+    resumen = 'Hay ' + trozos.slice(0, -1).join(', ') + ' y ' + trozos[trozos.length - 1] + '. ' +
+      'Las solicitudes nuevas entran al final de la fila; las de prioridad alta o urgente entran más adelante.';
   } else {
-    titulo = '<small>Agenda de solicitudes</small>Sin solicitudes en espera';
-    resumen = 'No hay nada en proceso ni en la fila. Una solicitud que llegue hoy se puede empezar hoy.';
+    titulo = '<small>Carga de trabajo</small>Sin solicitudes pendientes';
+    resumen = 'No hay nada en proceso ni en la fila. Una solicitud nueva se puede empezar de inmediato.';
   }
   const g = nivel() >= 3;
   const cifras = [
     ['En proceso', c.enProceso, ''],
-    ['En la fila', c.enFila, (g && c.porRevisar) ? plural(c.porRevisar, 'por revisar', 'por revisar') : ''],
+    ['En la fila', c.enFila, (g && c.porRevisar) ? c.porRevisar + ' por revisar' : ''],
     ['Esperando aprobación', c.enRevision, ''],
+    ['Pausadas', c.pausadas, ''],
     ['Atrasadas', c.atrasadas, '', c.atrasadas > 0],
-    ['Podrían atrasarse', c.enRiesgo, '', c.enRiesgo > 0],
     ['Listas en ' + mes, c.listasMes, '']
   ];
   $('#carga').innerHTML =
@@ -694,40 +689,20 @@ function renderCarga() {
       (x[2] ? ' <small style="color:var(--turquesa-texto)">(' + esc(x[2]) + ')</small>' : '') + '</span><b>' + x[1] + '</b></li>').join('') + '</ul>';
 }
 
+/* Un bloque por solicitud: primero lo que está en proceso y después la fila, en su orden */
 function renderPista(c) {
-  const totalH = c.dias.length * c.horasPorDia;
-  const pct = h => (h / totalH * 100);
-  let lineas = '', etiquetas = '';
-  const paso = Math.ceil(c.dias.length / (window.innerWidth < 700 ? 5 : 14));
-  let mesAnterior = -1;
-  c.dias.forEach((iso, i) => {
-    const dt = partes(iso);
-    const lunes = dt.getDay() === 1;
-    lineas += '<span class="pista-dia' + (lunes && i > 0 ? ' lunes' : '') + '" style="left:' + pct(i * c.horasPorDia) + '%"></span>';
-    if (i % paso === 0 && pct(i * c.horasPorDia) < 96) {
-      const cambiaMes = dt.getMonth() !== mesAnterior;
-      const txt = i === 0 ? 'hoy' : DIAS_C[dt.getDay()] + ' ' + dt.getDate() + (cambiaMes ? ' ' + MESES_C[dt.getMonth()] : '');
-      etiquetas += '<span class="' + (cambiaMes && i > 0 ? 'mes' : '') + '" style="left:' + pct(i * c.horasPorDia) + '%">' + esc(txt) + '</span>';
-      mesAnterior = dt.getMonth();
-    }
-  });
-  let acum = 0, bloques = '';
-  c.bloques.forEach(b => {
-    const izq = pct(acum), ancho = pct(b.horas);
-    acum += b.horas;
+  if (!c.bloques.length) return '';
+  const bloques = c.bloques.map(b => {
     const etiqueta = (b.posicion ? '#' + b.posicion + ' ' : '') + b.titulo;
-    const tip = etiqueta + ' (' + b.estado + ', ' + horasTxt(b.horas) + (b.sinTamano ? ', tamaño supuesto' : '') + ')';
-    bloques += '<button class="bloque b-' + slug(b.estado) + (b.prioridad === 'Urgente' ? ' urg' : '') + '" style="left:' + izq + '%;width:' + ancho + '%" data-abrir="' + esc(b.id) + '" title="' + esc(tip) + '" aria-label="' + esc(tip) + '"><span>' + esc(etiqueta) + '</span></button>';
-  });
-  const marca = c.horasTotales > 0 ? '<span class="marcador" style="left:' + Math.min(pct(acum), 99.6) + '%" title="Aquí entraría una solicitud nueva"></span>' : '';
-  return '<div class="pista"><div class="pista-barra">' + lineas + bloques + marca + '</div>' +
-    '<div class="pista-dias" aria-hidden="true">' + etiquetas + '</div>' +
+    const tip = etiqueta + ' (' + b.estado + (b.prioridad !== 'Normal' ? ', ' + b.prioridad.toLowerCase() : '') + ')';
+    return '<button class="bloque b-' + slug(b.estado) + (b.prioridad === 'Urgente' ? ' urg' : '') + '" data-abrir="' + esc(b.id) + '" title="' + esc(tip) + '" aria-label="' + esc(tip) + '"><span>' + esc(etiqueta) + '</span></button>';
+  }).join('');
+  return '<div class="pista"><div class="pista-barra">' + bloques + '<span class="siguiente" title="Aquí entra la próxima solicitud normal">Próxima</span></div>' +
     '<div class="pista-pie"><span><i style="background:var(--petroleo)"></i>En proceso</span>' +
     '<span><i style="background:var(--turquesa-oscuro)"></i>En cola</span>' +
-    '<span><i style="background:var(--turquesa-suave)"></i>Recibida, sin estimar</span>' +
+    '<span><i style="background:var(--turquesa-suave)"></i>Recibida, sin revisar</span>' +
     '<span><i style="background:var(--magenta);height:3px;vertical-align:5px"></i>Urgente</span>' +
-    (marca ? '<span><i class="m"></i>Aquí entraría una solicitud nueva</span>' : '') +
-    '<span>Cada columna es un día hábil de ' + horasTxt(c.horasPorDia) + '</span></div></div>';
+    '<span>Cada bloque es una solicitud, en orden</span></div></div>';
 }
 
 /* ---------- Herramientas: vista y filtros ---------- */
@@ -750,8 +725,7 @@ function renderHerramientas() {
   if (gente.length && !incluidas.length) etiqueta = 'Nadie';
   else if (!todas) etiqueta = incluidas.length === 1 ? incluidas[0].nombre : incluidas.length + ' de ' + gente.length + ' personas';
   const pila = incluidas.slice(0, 4).map(p => avatar(p.nombre, p.email, 'c')).join('');
-  const sel = (id, opciones, valor, todasTxt) => '<select class="entrada" id="' + id + '" aria-label="' + esc(todasTxt) + '"><option value="">' + esc(todasTxt) + '</option>' +
-    opciones.map(o => '<option' + (o === valor ? ' selected' : '') + '>' + esc(o) + '</option>').join('') + '</select>';
+  const sel = (id, opciones, valor, todasTxt) => listaDesplegable(id, [{ valor: '', texto: todasTxt }].concat(opciones), valor, todasTxt, { clase: 'filtro', ariaLabel: todasTxt });
 
   $('#herramientas').innerHTML =
     '<div class="segmentado" role="group" aria-label="Vista">' +
@@ -766,8 +740,6 @@ function renderHerramientas() {
     '<div class="fin"><span>Actualizado ' + esc(d.actualizado) + '</span><button class="btn btn-fantasma btn-icono" data-acc="recargar" aria-label="Actualizar" title="Actualizar">' + ico('recargar') + '</button></div>';
 
   $('#f-texto').addEventListener('input', e => { S.texto = e.target.value; renderContenido(); });
-  $('#f-tipo').addEventListener('change', e => { S.tipo = e.target.value; renderContenido(); });
-  $('#f-prioridad').addEventListener('change', e => { S.prioridad = e.target.value; renderContenido(); });
   const bp = $('#buscar-persona');
   if (bp) {
     bp.addEventListener('input', e => { S.buscarPersona = e.target.value; filtrarListaPersonas(); });
@@ -820,16 +792,15 @@ function renderFila() {
   const haceTreinta = (() => { const d = partes(S.datos.hoy); d.setDate(d.getDate() - 30); return d.toISOString().slice(0, 10); })();
   const listas = de('Lista').filter(s => String(s.termino).slice(0, 10) >= haceTreinta).sort((a, b) => String(b.termino).localeCompare(String(a.termino)));
   const rechazadas = de('Rechazada').sort((a, b) => String(b.actualizada).localeCompare(String(a.actualizada)));
-  const sumaH = arr => arr.reduce((t, s) => t + s.horas, 0);
   const filtrado = lista.length !== S.datos.solicitudes.length;
 
   let html = '';
   html += grupo('En proceso ahora', enProceso, 'proceso',
-    enProceso.length ? plural(enProceso.length, 'solicitud', 'solicitudes') + ', ' + horasTxt(sumaH(enProceso)) : '',
+    enProceso.length ? plural(enProceso.length, 'solicitud', 'solicitudes') : '',
     'Nada en proceso', nivel() >= 3 ? 'Toma la primera de la fila y cámbiala a "En proceso".' : 'Cuando se empiece una solicitud, aparecerá aquí.');
   if (revision.length) html += grupo('Esperando aprobación', revision, 'revision', plural(revision.length, 'solicitud enviada', 'solicitudes enviadas') + ' a revisar', '', '');
   html += grupo('Fila de espera', fila, 'fila',
-    fila.length ? plural(fila.length, 'solicitud', 'solicitudes') + ', ' + horasTxt(sumaH(fila)) + ' estimadas' : '',
+    fila.length ? plural(fila.length, 'solicitud', 'solicitudes') : '',
     filtrado ? 'No hay solicitudes en la fila con estos filtros' : 'La fila está vacía',
     filtrado ? 'Prueba quitando filtros.' : (nivel() >= 2 ? 'Las solicitudes nuevas llegan aquí en orden.' : ''));
   if (pausadas.length) html += grupo('Pausadas', pausadas, 'pausa', plural(pausadas.length, 'solicitud', 'solicitudes'), '', '');
@@ -845,9 +816,9 @@ function grupo(titulo, items, tipo, meta, vacioT, vacioS) {
     cuerpo = '<div class="vacio"><b>' + esc(vacioT) + '</b>' + esc(vacioS || '') + '</div>';
   } else {
     const cab = {
-      proceso: 'Termina aprox.', revision: 'En revisión desde', fila: 'Empieza aprox.', pausa: 'Pausada desde', lista: 'Terminada', rechazo: 'Cerrado'
+      proceso: 'Empezó', revision: 'En revisión desde', fila: 'Llegó', pausa: 'Pausada desde', lista: 'Terminada', rechazo: 'Cerrada'
     }[tipo];
-    cuerpo = '<div class="tabla" role="list"><div class="fila encabezado" aria-hidden="true"><span>' + (tipo === 'fila' ? 'Lugar' : '') + '</span><span>Solicitud</span><span>Pidió</span><span class="c-prio">Prioridad</span><span>Lo necesita</span><span class="c-tam">Tamaño</span><span>' + cab + '</span><span></span></div>' +
+    cuerpo = '<div class="tabla" role="list"><div class="fila encabezado" aria-hidden="true"><span>' + (tipo === 'fila' ? 'Lugar' : '') + '</span><span>Solicitud</span><span>Pidió</span><span class="c-prio">Prioridad</span><span>Lo necesita</span><span>' + cab + '</span><span></span></div>' +
       items.map(s => filaHtml(s, tipo)).join('') + '</div>';
   }
   return '<section class="grupo"><header><h3>' + esc(titulo) + '</h3><span class="meta">' + esc(meta || '') + '</span></header>' + cuerpo + '</section>';
@@ -871,11 +842,10 @@ function filaHtml(s, tipo) {
     s.archivos.length ? '<span class="ico">' + ico('clip') + s.archivos.length + '</span>' : ''
   ].join('');
   const tarde = s.atrasada ? ' tarde' : '';
-  const necesita = s.fechaRequerida ? '<div class="dato' + tarde + '">' + esc(fCorta(s.fechaRequerida)) + '<small>' + (s.atrasada ? 'Atrasada' : (s.enRiesgo ? 'Podría atrasarse' : '')) + '</small></div>' : '<div class="dato"><small>Sin fecha</small></div>';
-  const tam = s.tamano ? '<div class="dato">' + esc(s.tamano) + '<small>' + horasTxt(s.horas) + '</small></div>' : '<div class="dato"><small>Sin estimar</small></div>';
+  const necesita = s.fechaRequerida ? '<div class="dato' + tarde + '">' + esc(fCorta(s.fechaRequerida)) + '<small>' + (s.atrasada ? 'Atrasada' : '') + '</small></div>' : '<div class="dato"><small>Sin fecha</small></div>';
   let est = '';
-  if (tipo === 'fila') est = '<div class="dato">' + esc(fCorta(s.inicioEstimado)) + '<small>Lista aprox. ' + esc(fCorta(s.finEstimado)) + '</small></div>';
-  else if (tipo === 'proceso') est = '<div class="dato">' + esc(fCorta(s.finEstimado)) + '<small>' + (s.fechaComprometida ? 'Comprometida ' + esc(fCorta(s.fechaComprometida)) : 'Empezó ' + esc(fMomento(s.inicio))) + '</small></div>';
+  if (tipo === 'fila') est = '<div class="dato">' + esc(fMomento(s.creada)) + '</div>';
+  else if (tipo === 'proceso') est = '<div class="dato">' + esc(fMomento(s.inicio)) + (s.fechaComprometida ? '<small>Comprometida: ' + esc(fCorta(s.fechaComprometida)) + '</small>' : '') + '</div>';
   else if (tipo === 'lista') est = '<div class="dato">' + esc(fMomento(s.termino)) + '</div>';
   else est = '<div class="dato">' + esc(fMomento(s.actualizada)) + '</div>';
   const acc = (g && tipo === 'fila') ? '<div class="acciones-fila"><button class="btn" data-mover="arriba" data-id="' + esc(s.id) + '" aria-label="Subir en la fila" title="Subir"' + (s.posicion === 1 ? ' disabled' : '') + '>' + ico('arriba') + '</button>' +
@@ -886,7 +856,6 @@ function filaHtml(s, tipo) {
     '<div class="c-per persona">' + avatar(s.solicitanteNombre, s.solicitanteEmail) + '<b>' + esc(s.solicitanteNombre) + '</b></div>' +
     '<div class="c-prio">' + prioTag(s.prioridad) + '</div>' +
     '<div class="c-fec">' + necesita + '</div>' +
-    '<div class="c-tam">' + tam + '</div>' +
     '<div class="c-est">' + est + '</div>' +
     '<div class="c-acc">' + acc + '</div></div>';
 }
@@ -908,8 +877,7 @@ function renderTablero() {
       items = items.filter(s => String(s.termino).slice(0, 10) >= haceTreinta).sort((a, b) => String(b.termino).localeCompare(String(a.termino)));
       if (total > items.length) nota = 'Se muestran las terminadas de los últimos 30 días.';
     } else items.sort((a, b) => String(b.actualizada).localeCompare(String(a.actualizada)));
-    const horas = ['Recibida', 'En cola', 'En proceso'].includes(e) && items.length ? horasTxt(items.reduce((t, s) => t + s.horas, 0)) : '';
-    return '<div class="columna" data-columna="' + esc(e) + '"><header><span aria-hidden="true" style="width:10px;height:10px;border-radius:50%;flex:none;background:' + colorColumna(e) + '"></span><h3>' + esc(e) + '</h3><span class="n">' + items.length + '</span><span class="h">' + horas + '</span></header>' +
+    return '<div class="columna" data-columna="' + esc(e) + '"><header><span aria-hidden="true" style="width:10px;height:10px;border-radius:50%;flex:none;background:' + colorColumna(e) + '"></span><h3>' + esc(e) + '</h3><span class="n">' + items.length + '</span></header>' +
       '<div class="tarjetas">' + items.map(s => tarjetaHtml(s, g)).join('') + '</div>' + (nota ? '<div class="nota-columna">' + nota + '</div>' : '') + '</div>';
   }).join('');
   $('#contenido').innerHTML =
@@ -927,7 +895,7 @@ function colorColumna(e) {
 
 function tarjetaHtml(s, arrastrable) {
   const fecha = s.fechaRequerida ? '<span class="' + (s.atrasada ? 'tarde' : '') + '">' + (s.atrasada ? 'Atrasada, ' : '') + esc(fCorta(s.fechaRequerida)) + '</span>' : '<span>Sin fecha</span>';
-  const chips = ['<span class="chip">' + esc(s.tipo) + '</span>', s.tamano ? '<span class="chip">' + esc(s.tamano) + ' · ' + horasTxt(s.horas) + '</span>' : ''].join('');
+  const chips = '<span class="chip">' + esc(s.tipo) + '</span>';
   return '<div class="tarjeta' + (s.prioridad === 'Urgente' && !CERRADOS.includes(s.estado) ? ' urgente' : '') + '" tabindex="0" data-abrir="' + esc(s.id) + '"' + (arrastrable ? ' draggable="true"' : '') + '>' +
     '<div class="arriba"><span>' + (s.posicion ? '<b style="color:var(--petroleo)">#' + s.posicion + '</b> ' : '') + esc(s.id) + '</span>' + (s.prioridad !== 'Normal' ? prioTag(s.prioridad) : '') + '</div>' +
     '<div class="tit">' + esc(s.titulo) + '</div><div class="chips">' + chips + '</div>' +
@@ -985,12 +953,11 @@ function renderDetalle(soloExtra) {
     ['Área', esc(s.area)],
     ['Pidió', '<span class="persona">' + avatar(s.solicitanteNombre, s.solicitanteEmail, 'c') + esc(s.solicitanteNombre) + '</span>'],
     ['Solicitada el', esc(fMomento(s.creada))],
-    ['Lo necesita para', s.fechaRequerida ? esc(fLarga(s.fechaRequerida)) + (s.atrasada ? ' (atrasada)' : s.enRiesgo ? ' (podría atrasarse)' : '') : 'Sin fecha', s.atrasada || s.enRiesgo],
-    ['Tamaño', s.tamano ? esc(s.tamano) + ', ' + horasTxt(s.horas) : 'Sin estimar (se cuenta como ' + esc(S.datos.config.tamanoDefecto.toLowerCase()) + ')']
+    ['Lo necesita para', s.fechaRequerida ? esc(fLarga(s.fechaRequerida)) + (s.atrasada ? ' (atrasada)' : '') : 'Sin fecha', s.atrasada]
   ];
   if (s.fechaComprometida) datos.push(['Fecha comprometida', esc(fLarga(s.fechaComprometida))]);
-  if (s.posicion) datos.push(['Lugar en la fila', '#' + s.posicion + ' de ' + S.datos.carga.enFila], ['Empieza aprox.', esc(fLarga(s.inicioEstimado))]);
-  if (s.estado === 'En proceso') datos.push(['Empezó', esc(fMomento(s.inicio))], ['Termina aprox.', esc(fLarga(s.finEstimado))]);
+  if (s.posicion) datos.push(['Lugar en la fila', '#' + s.posicion + ' de ' + S.datos.carga.enFila]);
+  if (s.estado === 'En proceso') datos.push(['Empezó', esc(fMomento(s.inicio))]);
   if (s.estado === 'Lista') datos.push(['Terminada', esc(fMomento(s.termino))]);
 
   const gestion = g ? gestionHtml(s) : '';
@@ -1026,14 +993,11 @@ function renderDetalle(soloExtra) {
 }
 
 function gestionHtml(s) {
-  const tam = ['Chico', 'Mediano', 'Grande'];
-  const h = S.datos.config.horas;
-  return '<section class="gestion" id="gestion" data-estado="' + esc(s.estado) + '" data-tamano="' + esc(s.tamano) + '">' +
+  return '<section class="gestion" id="gestion" data-estado="' + esc(s.estado) + '">' +
     '<h4>Gestión</h4>' +
     '<div class="estados" role="group" aria-label="Estado">' + ESTADOS.map(e => '<button type="button" data-g-estado="' + esc(e) + '" aria-pressed="' + (e === s.estado) + '">' + esc(e) + '</button>').join('') + '</div>' +
     '<div class="rejilla">' +
-      '<div class="campo" style="grid-column:1 / -1"><span>Tamaño del trabajo</span><div class="segmentado" role="group" aria-label="Tamaño" style="display:flex;align-self:stretch">' + tam.map(t => '<button type="button" style="flex:1;white-space:nowrap" data-g-tamano="' + t + '" aria-pressed="' + (t === s.tamano) + '">' + t + ' <small style="opacity:.8;font-weight:400">' + horasTxt(h[t.toLowerCase()]) + '</small></button>').join('') + '</div></div>' +
-      '<label class="campo"><span>Prioridad</span><select class="entrada" id="g-prioridad">' + ['Normal', 'Alta', 'Urgente'].map(p => '<option' + (p === s.prioridad ? ' selected' : '') + '>' + p + '</option>').join('') + '</select></label>' +
+      '<div class="campo"><span id="et-gprio">Prioridad</span>' + listaDesplegable('g-prioridad', ['Normal', 'Alta', 'Urgente'], s.prioridad, 'Normal', { id: 'g-prioridad', etiqueta: 'et-gprio' }) + '</div>' +
       '<label class="campo"><span>Fecha comprometida</span><input class="entrada" type="date" id="g-fecha" value="' + esc(s.fechaComprometida) + '"></label>' +
     '</div>' +
     '<label class="campo"><span>Nota para quien pidió <small>(opcional, queda como comentario y va en el aviso)</small></span><textarea class="entrada" id="gestion-nota" rows="2" style="min-height:64px" placeholder="Ej: la dejé en pausa hasta que llegue el texto final."></textarea></label>' +
@@ -1058,9 +1022,8 @@ async function guardarGestion(boton) {
   const s = S.datos.solicitudes.find(x => x.id === S.detalleId);
   const box = $('#gestion');
   const c = {};
-  const estado = box.dataset.estado, tamano = box.dataset.tamano;
+  const estado = box.dataset.estado;
   if (estado !== s.estado) c.estado = estado;
-  if (tamano !== s.tamano) c.tamano = tamano;
   const pr = $('#g-prioridad').value; if (pr !== s.prioridad) c.prioridad = pr;
   const fe = $('#g-fecha').value; if (fe !== s.fechaComprometida) c.fechaComprometida = fe;
   const nota = $('#gestion-nota').value.trim(); if (nota) c.nota = nota;
@@ -1100,13 +1063,12 @@ async function subirArchivos(id, archivos, avance) {
 function abrirFormulario(s) {
   const d = S.datos, edit = !!s;
   const v = s || { titulo: '', descripcion: '', tipo: '', area: d.config.areas.includes(d.yo.area) ? d.yo.area : '', prioridad: 'Normal', fechaRequerida: '', links: '' };
-  const opts = (arr, val, ph) => '<option value="">' + ph + '</option>' + arr.map(o => '<option' + (o === val ? ' selected' : '') + '>' + esc(o) + '</option>').join('');
   $('#capa-modal').innerHTML = '<div class="modal-velo"><form class="modal" id="form-pedido" novalidate role="dialog" aria-modal="true" aria-labelledby="titulo-form">' +
     '<header><h2 id="titulo-form">' + (edit ? 'Editar ' + esc(s.id) : 'Nueva solicitud') + '</h2><button type="button" class="btn btn-fantasma btn-icono" data-acc="cerrar-modal" aria-label="Cerrar">' + ico('cerrar') + '</button></header>' +
     '<div class="cuerpo"><div class="form-rejilla">' +
       '<label class="campo todo"><span>¿Qué necesitas?</span><input class="entrada" name="titulo" maxlength="140" value="' + esc(v.titulo) + '" placeholder="Video de cierre del curso de operador de grúa horquilla"><span class="error-campo" data-error="titulo"></span></label>' +
-      '<label class="campo"><span>Tipo de pieza</span><select class="entrada" name="tipo">' + opts(d.config.tipos, v.tipo, 'Elige un tipo') + '</select><span class="error-campo" data-error="tipo"></span></label>' +
-      '<label class="campo"><span>Área que lo pide</span><select class="entrada" name="area">' + opts(d.config.areas, v.area, 'Elige un área') + '</select><span class="error-campo" data-error="area"></span></label>' +
+      '<div class="campo"><span id="et-tipo">Tipo de pieza</span>' + listaDesplegable('tipo', d.config.tipos, v.tipo, 'Elige un tipo', { etiqueta: 'et-tipo' }) + '<span class="error-campo" data-error="tipo"></span></div>' +
+      '<div class="campo"><span id="et-areasol">Área que lo pide</span>' + listaDesplegable('area', d.config.areas, v.area, 'Elige un área', { etiqueta: 'et-areasol' }) + '<span class="error-campo" data-error="area"></span></div>' +
       '<label class="campo"><span>¿Para cuándo lo necesitas?</span><input class="entrada" type="date" name="fechaRequerida" value="' + esc(v.fechaRequerida) + '"' + (edit ? '' : ' min="' + d.hoy + '"') + '><small>Déjalo vacío si no tiene fecha.</small></label>' +
       '<div class="campo"><span>Prioridad</span><div class="segmentado" role="group" aria-label="Prioridad">' + ['Normal', 'Alta', 'Urgente'].map(p => '<button type="button" data-f-prio="' + p + '" class="' + (p === 'Urgente' ? 'urgente' : '') + '" aria-pressed="' + (p === v.prioridad) + '">' + p + '</button>').join('') + '</div>' +
         '<small id="ayuda-prio">' + ayudaPrioridad(v.prioridad) + '</small></div>' +
@@ -1137,9 +1099,9 @@ function abrirFormulario(s) {
     if (!datos.titulo) errores.titulo = 'Escribe qué necesitas.';
     if (!datos.tipo) errores.tipo = 'Elige el tipo de pieza.';
     if (!datos.area) errores.area = 'Elige el área.';
-    if (!datos.descripcion) errores.descripcion = 'Cuenta el detalle para poder estimar el trabajo.';
+    if (!datos.descripcion) errores.descripcion = 'Cuenta el detalle de lo que necesitas.';
     $$('[data-error]', form).forEach(e => { e.textContent = errores[e.dataset.error] || ''; });
-    if (Object.keys(errores).length) { form.querySelector('[name="' + Object.keys(errores)[0] + '"]').focus(); return; }
+    if (Object.keys(errores).length) { enfocarCampo(form, Object.keys(errores)[0]); return; }
     const archivos = fi ? Array.from(fi.files) : [];
     const grande = archivos.find(f => f.size > d.config.maxMb * 1048576);
     if (grande) { mostrarErrorForm('"' + grande.name + '" pesa más de ' + d.config.maxMb + ' MB. Súbelo a Drive y pega el link.'); return; }
@@ -1214,10 +1176,10 @@ function renderUsuarios(editando) {
     '<form class="caja-form" id="form-usuario" novalidate><h3>' + (esNuevo ? 'Agregar persona' : 'Editar a ' + esc(u.nombre)) + '</h3><div class="form-rejilla">' +
       '<label class="campo"><span>Nombre</span><input class="entrada" name="nombre" value="' + esc(u.nombre) + '" placeholder="Juan Pérez"></label>' +
       '<label class="campo"><span>Correo</span><input class="entrada" name="email" type="email" value="' + esc(u.email) + '" placeholder="juan@gmail.com"' + (u.esDuena ? ' readonly' : '') + '></label>' +
-      '<label class="campo"><span>Rol</span><select class="entrada" name="rol"' + (u.esDuena ? ' disabled' : '') + '>' + ROLES.map(r => '<option' + (r === u.rol ? ' selected' : '') + '>' + r + '</option>').join('') + '</select></label>' +
-      '<div class="campo"><span id="et-area">Área</span>' + listaDesplegable('area', areas, u.area, 'Elige un área', 'et-area') + '</div>' +
+      '<div class="campo"><span id="et-rol">Rol</span>' + listaDesplegable('rol', ROLES, u.rol, 'Elige un rol', { etiqueta: 'et-rol', disabled: u.esDuena }) + '</div>' +
+      '<div class="campo"><span id="et-area">Área</span>' + listaDesplegable('area', areas, u.area, 'Elige un área', { etiqueta: 'et-area' }) + '</div>' +
       '<label class="campo"><span>Contraseña</span><span style="display:flex;gap:8px"><input class="entrada" name="clave" value="' + esc(u.clave) + '" placeholder="Mínimo 6 caracteres"><button type="button" class="btn" data-acc="generar-clave">Generar</button></span><small>Pásasela a la persona por un canal privado.</small></label>' +
-      '<label class="campo"><span>Acceso</span><select class="entrada" name="activo"' + (u.esDuena ? ' disabled' : '') + '><option' + (u.activo === 'Sí' ? ' selected' : '') + ' value="Sí">Activo</option><option' + (u.activo === 'No' ? ' selected' : '') + ' value="No">Sin acceso</option></select></label>' +
+      '<div class="campo"><span id="et-acceso">Acceso</span>' + listaDesplegable('activo', [{ valor: 'Sí', texto: 'Activo' }, { valor: 'No', texto: 'Sin acceso' }], u.activo || 'Sí', 'Activo', { etiqueta: 'et-acceso', disabled: u.esDuena }) + '</div>' +
       '<div class="todo mensaje-error" id="usu-error" hidden></div>' +
       '<div class="todo" style="display:flex;gap:8px;justify-content:flex-end">' + (esNuevo ? '' : '<button type="button" class="btn" data-acc="cancelar-usuario">Cancelar</button>') +
         '<button class="btn btn-primario" type="submit" id="btn-usu">' + (esNuevo ? 'Agregar persona' : 'Guardar cambios') + '</button></div>' +
@@ -1244,15 +1206,24 @@ function renderUsuarios(editando) {
 }
 
 /* Lista desplegable propia: un botón que abre las opciones; guarda el valor en un input oculto */
-function listaDesplegable(nombre, opciones, valor, textoVacio, idEtiqueta) {
-  const lista = opciones.slice();
-  if (valor && lista.indexOf(valor) === -1) lista.unshift(valor);   // el valor actual aunque ya no esté en la lista
-  return '<div class="lista-desp" data-lista="' + esc(nombre) + '">' +
-    '<input type="hidden" name="' + esc(nombre) + '" value="' + esc(valor || '') + '">' +
-    '<button type="button" class="entrada lista-btn" aria-haspopup="listbox" aria-expanded="false"' + (idEtiqueta ? ' aria-labelledby="' + idEtiqueta + '"' : '') + '>' +
-      '<span class="' + (valor ? '' : 'vacia') + '">' + esc(valor || textoVacio) + '</span></button>' +
+/*
+ * opciones: textos, o {valor, texto} cuando lo que se guarda es distinto de lo que se ve.
+ * cfg: { etiqueta: id del texto que la nombra, ariaLabel, id: id del input oculto, disabled, clase }
+ * Al elegir, avisa con el evento "cambio" (detail: {nombre, valor}).
+ */
+function listaDesplegable(nombre, opciones, valor, textoVacio, cfg) {
+  cfg = cfg || {};
+  const lista = opciones.map(o => typeof o === 'object' ? o : { valor: o, texto: o });
+  valor = valor == null ? '' : String(valor);
+  if (valor && !lista.some(o => o.valor === valor)) lista.unshift({ valor: valor, texto: valor });   // el valor actual aunque ya no esté en la lista
+  const elegida = lista.find(o => o.valor === valor);
+  return '<div class="lista-desp' + (cfg.clase ? ' ' + cfg.clase : '') + '" data-lista="' + esc(nombre) + '">' +
+    '<input type="hidden" name="' + esc(nombre) + '"' + (cfg.id ? ' id="' + esc(cfg.id) + '"' : '') + ' value="' + esc(valor) + '">' +
+    '<button type="button" class="entrada lista-btn" aria-haspopup="listbox" aria-expanded="false"' +
+      (cfg.etiqueta ? ' aria-labelledby="' + cfg.etiqueta + '"' : '') + (cfg.ariaLabel ? ' aria-label="' + esc(cfg.ariaLabel) + '"' : '') + (cfg.disabled ? ' disabled' : '') + '>' +
+      '<span class="' + (elegida ? '' : 'vacia') + '">' + esc(elegida ? elegida.texto : textoVacio) + '</span></button>' +
     '<ul class="lista-opciones" role="listbox" hidden>' +
-      lista.map(o => '<li role="option" data-valor="' + esc(o) + '" aria-selected="' + (o === valor) + '">' + esc(o) + '</li>').join('') +
+      lista.map(o => '<li role="option" data-valor="' + esc(o.valor) + '" aria-selected="' + (o.valor === valor) + '">' + esc(o.texto) + '</li>').join('') +
     '</ul></div>';
 }
 function abrirLista(caja) {
@@ -1274,10 +1245,26 @@ function elegirEnLista(caja, li) {
   const v = li.dataset.valor;
   caja.querySelector('input[type="hidden"]').value = v;
   const span = caja.querySelector('.lista-btn span');
-  span.textContent = v; span.className = '';
+  span.textContent = li.textContent; span.className = '';
   $$('li', caja).forEach(x => x.setAttribute('aria-selected', x === li));
   cerrarListas();
   caja.querySelector('.lista-btn').focus();
+  caja.dispatchEvent(new CustomEvent('cambio', { bubbles: true, detail: { nombre: caja.dataset.lista, valor: v } }));
+}
+/* Qué hacer cuando cambia una lista: filtros de arriba y limpiar errores de formularios */
+document.addEventListener('cambio', ev => {
+  const d = ev.detail || {};
+  if (d.nombre === 'f-tipo') { S.tipo = d.valor; renderContenido(); }
+  else if (d.nombre === 'f-prioridad') { S.prioridad = d.valor; renderContenido(); }
+  const form = ev.target.closest && ev.target.closest('form');
+  if (form) { const e = form.querySelector('[data-error="' + d.nombre + '"]'); if (e) e.textContent = ''; }
+});
+/* Pone el foco en un campo; si es una lista propia, en su botón */
+function enfocarCampo(form, nombre) {
+  const el = form.querySelector('[name="' + nombre + '"]');
+  if (!el) return;
+  if (el.type === 'hidden') { const b = el.closest('.lista-desp') && el.closest('.lista-desp').querySelector('.lista-btn'); if (b) b.focus(); }
+  else el.focus();
 }
 document.addEventListener('keydown', ev => {
   const caja = ev.target.closest && ev.target.closest('.lista-desp');
@@ -1320,12 +1307,7 @@ function abrirConfig() {
       '<label class="campo"><span>Texto bajo el nombre</span><input class="entrada" name="subtitulo" value="' + esc(c.subtitulo) + '"></label>' +
       '<label class="campo"><span>Tipos de pieza <small>(uno por línea)</small></span><textarea class="entrada" name="tipos" rows="7">' + esc(c.tipos.join('\n')) + '</textarea></label>' +
       '<label class="campo"><span>Áreas <small>(una por línea)</small></span><textarea class="entrada" name="areas" rows="7">' + esc(c.areas.join('\n')) + '</textarea></label>' +
-      '<label class="campo"><span>Horas de un trabajo chico</span><input class="entrada" name="horas_chico" type="number" min="0.5" step="0.5" value="' + c.horas.chico + '"></label>' +
-      '<label class="campo"><span>Horas de un trabajo mediano</span><input class="entrada" name="horas_mediano" type="number" min="0.5" step="0.5" value="' + c.horas.mediano + '"></label>' +
-      '<label class="campo"><span>Horas de un trabajo grande</span><input class="entrada" name="horas_grande" type="number" min="0.5" step="0.5" value="' + c.horas.grande + '"></label>' +
-      '<label class="campo"><span>Horas al día para solicitudes</span><input class="entrada" name="horas_por_dia" type="number" min="0.5" step="0.5" value="' + c.horasPorDia + '"><small>Lo que queda después de reuniones y otras tareas.</small></label>' +
-      '<label class="campo"><span>Si no tiene tamaño, contar como</span><select class="entrada" name="tamano_defecto">' + ['Chico', 'Mediano', 'Grande'].map(t => '<option' + (t === c.tamanoDefecto ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></label>' +
-      '<label class="campo"><span>Correos del resumen semanal</span><input class="entrada" name="correos_resumen" value="' + esc(c.correosResumen) + '" placeholder="jefe@talentolocal.cl"><small>Se envía los lunes a las 8. Separa con comas.</small></label>' +
+      '<label class="campo todo"><span>Correos del resumen semanal</span><input class="entrada" name="correos_resumen" value="' + esc(c.correosResumen) + '" placeholder="jefe@talentolocal.cl"><small>Se envía los lunes a las 8. Separa con comas.</small></label>' +
       '<label class="campo todo"><span>Link de la app <small>(para los botones de los correos)</small></span><input class="entrada" name="url_app" value="' + esc(c.urlApp) + '" placeholder="https://script.google.com/macros/s/…/exec"></label>' +
       '<div class="todo mensaje-error" id="cfg-error" hidden></div>' +
     '</div></div><footer><button type="button" class="btn" data-acc="cerrar-modal">Cancelar</button><button class="btn btn-primario" type="submit" id="btn-cfg">Guardar configuración</button></footer></form></div>';
@@ -1424,12 +1406,6 @@ document.addEventListener('click', async ev => {
 
   const gEstado = t.closest('[data-g-estado]');
   if (gEstado) { const box = $('#gestion'); box.dataset.estado = gEstado.dataset.gEstado; $$('[data-g-estado]', box).forEach(b => b.setAttribute('aria-pressed', b === gEstado)); return; }
-  const gTam = t.closest('[data-g-tamano]');
-  if (gTam) {
-    const box = $('#gestion'); const val = box.dataset.tamano === gTam.dataset.gTamano ? '' : gTam.dataset.gTamano;
-    box.dataset.tamano = val; $$('[data-g-tamano]', box).forEach(b => b.setAttribute('aria-pressed', b.dataset.gTamano === val)); return;
-  }
-
   const verClave = t.closest('[data-ver-clave]');
   if (verClave) { const i = verClave.dataset.verClave; const span = $('[data-clave="' + i + '"]'); const ver = verClave.textContent === 'Ver'; span.textContent = ver ? USUARIOS[i].clave : '••••••'; verClave.textContent = ver ? 'Ocultar' : 'Ver'; return; }
   const editU = t.closest('[data-editar-usuario]');
