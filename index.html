@@ -228,6 +228,13 @@ main{max-width:1360px;margin:0 auto;padding:26px 24px 60px}
 .grupo h3{margin:0;font-family:var(--fuente-titulo);font-weight:600;font-size:21px;color:var(--tinta)}
 .grupo .meta{font-size:14px;color:var(--tinta-3)}
 .grupo>header button{margin-left:auto}
+.grupo>header .acciones-grupo{margin-left:auto;display:flex;gap:8px;align-items:center}
+.grupo>header .acciones-grupo button{margin-left:0}
+.reglas{background:var(--blanco);border:1px solid var(--linea);border-left:4px solid var(--turquesa);border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:14px;color:var(--tinta-2);max-width:80ch}
+.reglas ol{margin:6px 0 8px;padding-left:20px}
+.reglas li{margin:2px 0}
+.reglas p{margin:6px 0 0}
+.reglas b{color:var(--tinta);font-weight:600}
 .tabla{background:var(--blanco);border:1px solid var(--linea);border-radius:var(--radio);overflow:hidden}
 .fila{display:grid;grid-template-columns:52px minmax(0,1fr) 180px 118px 96px 124px 140px 76px;align-items:center;gap:14px;padding:12px 16px 12px 8px;border-top:1px solid var(--linea);cursor:pointer;position:relative}
 .fila:first-child{border-top:0}
@@ -244,6 +251,7 @@ main{max-width:1360px;margin:0 auto;padding:26px 24px 60px}
 .dato{font-size:14px;color:var(--tinta-2);line-height:1.3}
 .dato small{display:block;font-size:12px;color:var(--tinta-3)}
 .dato.tarde,.dato.tarde small{color:var(--magenta)}
+.dato .pronto{color:var(--ambar);font-weight:600}
 .acciones-fila{display:flex;gap:4px;justify-content:flex-end}
 .acciones-fila .btn{width:32px;height:32px;padding:0}
 .vacio{padding:26px 20px;text-align:center;color:var(--tinta-3);background:var(--blanco);border:1px dashed var(--linea-fuerte);border-radius:var(--radio)}
@@ -476,7 +484,7 @@ details[open] summary svg{transform:rotate(90deg)}
 const CLAVE_TOKEN = 'tl_solicitudes_token';
 const S = {
   token: null, datos: null, vista: 'fila', texto: '', excluidos: new Set(), estado: '', prioridad: '',
-  verCerradas: false, verListas: false, verRechazadas: false, detalleId: null, detalleExtra: null,
+  verCerradas: false, verListas: false, verRechazadas: false, verReglas: false, detalleId: null, detalleExtra: null,
   panelPersonas: '', buscarPersona: '',   // panelPersonas: '' cerrado, 'h' en la barra, 'm' en la ventana del mes
   procesando: 0,
   cal: { modal: false, mes: '', abierto: null }
@@ -976,6 +984,37 @@ function visibles() {
     (!q || [s.id, s.titulo, s.descripcion, s.solicitanteNombre, s.tipo, s.area].join(' ').toLowerCase().indexOf(q) !== -1));
 }
 
+/* ---------- Reglas de la fila (las mismas que usa Código.gs) ---------- */
+const DIAS_PRONTO = 2;
+function limiteProntoFila() { const d = partes(S.datos.hoy); d.setDate(d.getDate() + DIAS_PRONTO); return isoDe(d); }
+function claveFila(s, limite) {
+  const fecha = s.fechaComprometida || s.fechaRequerida || '';
+  let grupo = RANGO_P[s.prioridad] ?? 2;
+  if (grupo === 2 && fecha && fecha <= limite) grupo = 1;   // normal atrasada o que vence pronto: va con las altas
+  return [grupo, fecha || '9999-12-31', String(s.creada || ''), String(s.id || '')];
+}
+function compararFila(a, b, limite) {
+  const ka = claveFila(a, limite), kb = claveFila(b, limite);
+  for (let i = 0; i < ka.length; i++) { if (ka[i] < kb[i]) return -1; if (ka[i] > kb[i]) return 1; }
+  return 0;
+}
+/* ¿La fila completa sigue el orden de las reglas? (puede dejar de seguirlo si se movió a mano o si se acercaron fechas) */
+function filaSigueReglas() {
+  const fila = S.datos.solicitudes.filter(s => EN_FILA.includes(s.estado)).sort((a, b) => a.posicion - b.posicion);
+  const limite = limiteProntoFila();
+  const ideal = fila.slice().sort((a, b) => compararFila(a, b, limite));
+  return fila.every((s, i) => s === ideal[i]);
+}
+function reglasHtml() {
+  return '<div class="reglas" id="reglas-fila"><b>Cómo se ordena la fila sola</b><ol>' +
+    '<li>Primero las <b>urgentes</b>.</li>' +
+    '<li>Después las de prioridad <b>alta</b>, junto con las <b>normales atrasadas o que vencen en ' + DIAS_PRONTO + ' días o menos</b>.</li>' +
+    '<li>Después el resto de las <b>normales</b>.</li></ol>' +
+    'Dentro de cada grupo va primero la que vence antes (la fecha comprometida, si hay una; si no, la fecha de entrega). Las que no tienen fecha van al final de su grupo y, si todo empata, va primero la que llegó antes. Da lo mismo si está Recibida o En cola.' +
+    '<p>Las solicitudes nuevas, y las que cambian de prioridad o de fecha, se ubican solas con estas reglas. Lo que se mueve a mano con las flechas se respeta.' +
+    (nivel() >= 3 ? ' Si la fila deja de seguir las reglas (por movimientos a mano o porque se acercaron fechas), aparece el botón <b>Ordenar según las reglas</b>.' : '') + '</p></div>';
+}
+
 function renderContenido() {
   renderSemana();
   if (S.vista === 'tablero') renderTablero(); else renderFila();
@@ -1000,10 +1039,13 @@ function renderFila() {
     enProceso.length ? plural(enProceso.length, 'solicitud', 'solicitudes') : '',
     'Nada en proceso', nivel() >= 3 ? 'Toma la primera de la fila y cámbiala a "En proceso".' : 'Cuando se empiece una solicitud, aparecerá aquí.');
   if (revision.length) html += grupo('Esperando aprobación', revision, 'revision', plural(revision.length, 'solicitud enviada', 'solicitudes enviadas') + ' a revisar', '', '');
+  const accionesFila = (nivel() >= 3 && !filaSigueReglas() ? '<button class="btn btn-chico" data-acc="ordenar-fila">Ordenar según las reglas</button>' : '') +
+    '<button class="btn btn-fantasma btn-chico" data-acc="ver-reglas" aria-expanded="' + !!S.verReglas + '" aria-controls="reglas-fila">' + (S.verReglas ? 'Ocultar reglas' : '¿Cómo se ordena?') + '</button>';
   html += grupo('Fila de espera', fila, 'fila',
     fila.length ? plural(fila.length, 'solicitud', 'solicitudes') : '',
     filtrado ? 'No hay solicitudes en la fila con estos filtros' : 'La fila está vacía',
-    filtrado ? 'Prueba quitando filtros.' : (nivel() >= 2 ? 'Las solicitudes nuevas llegan aquí en orden.' : ''));
+    filtrado ? 'Prueba quitando filtros.' : (nivel() >= 2 ? 'Las solicitudes nuevas llegan aquí y se ordenan solas.' : ''),
+    accionesFila, S.verReglas ? reglasHtml() : '');
   if (pausadas.length) html += grupo('Pausadas', pausadas, 'pausa', plural(pausadas.length, 'solicitud', 'solicitudes'), '', '');
   html += grupoPlegable('Listas en los últimos 30 días', listas, 'lista', 'verListas');
   if (rechazadas.length) html += grupoPlegable('Rechazadas o retiradas', rechazadas, 'rechazo', 'verRechazadas');
@@ -1018,7 +1060,7 @@ function encabezadoTabla(tipo) {
     '<span class="c-prio">Prioridad</span><span>Fecha de entrega</span><span>' + cab + '</span><span></span></div>';
 }
 
-function grupo(titulo, items, tipo, meta, vacioT, vacioS) {
+function grupo(titulo, items, tipo, meta, vacioT, vacioS, accionesCab, antesDeTabla) {
   let cuerpo;
   if (!items.length) {
     if (!vacioT) return '';
@@ -1026,7 +1068,8 @@ function grupo(titulo, items, tipo, meta, vacioT, vacioS) {
   } else {
     cuerpo = '<div class="tabla" role="list">' + encabezadoTabla(tipo) + items.map(s => filaHtml(s, tipo)).join('') + '</div>';
   }
-  return '<section class="grupo"><header><h3>' + esc(titulo) + '</h3><span class="meta">' + esc(meta || '') + '</span></header>' + cuerpo + '</section>';
+  return '<section class="grupo"><header><h3>' + esc(titulo) + '</h3><span class="meta">' + esc(meta || '') + '</span>' +
+    (accionesCab ? '<div class="acciones-grupo">' + accionesCab + '</div>' : '') + '</header>' + (antesDeTabla || '') + cuerpo + '</section>';
 }
 
 function grupoPlegable(titulo, items, tipo, bandera) {
@@ -1046,7 +1089,14 @@ function filaHtml(s, tipo) {
     s.archivos.length ? '<span class="ico">' + ico('clip') + s.archivos.length + '</span>' : ''
   ].join('');
   const tarde = s.atrasada ? ' tarde' : '';
-  const necesita = s.fechaRequerida ? '<div class="dato' + tarde + '">' + esc(fCorta(s.fechaRequerida)) + '<small>' + (s.atrasada ? 'Atrasada' : '') + '</small></div>' : '<div class="dato"><small>Sin fecha</small></div>';
+  // Debajo de la fecha: atrasada / vence pronto (lo que sube en la fila) y la fecha comprometida, si Tamara puso una
+  const fechaEf = s.fechaComprometida || s.fechaRequerida;
+  const notas = [];
+  if (s.atrasada) notas.push('Atrasada');
+  else if (!CERRADOS.includes(s.estado) && fechaEf && fechaEf <= limiteProntoFila()) notas.push('<span class="pronto">Vence pronto</span>');
+  if (s.fechaComprometida && tipo !== 'proceso') notas.push('Comprometida: ' + esc(fCorta(s.fechaComprometida)));
+  const necesita = s.fechaRequerida ? '<div class="dato' + tarde + '">' + esc(fCorta(s.fechaRequerida)) + '<small>' + notas.join(' · ') + '</small></div>' :
+    '<div class="dato"><small>' + (notas.length ? 'Sin fecha · ' + notas.join(' · ') : 'Sin fecha') + '</small></div>';
   let est = '';
   if (tipo === 'fila') est = '<div class="dato">' + esc(fMomento(s.creada)) + '</div>';
   else if (tipo === 'proceso') est = '<div class="dato">' + esc(fMomento(s.inicio)) + (s.fechaComprometida ? '<small>Comprometida: ' + esc(fCorta(s.fechaComprometida)) + '</small>' : '') + '</div>';
@@ -1335,9 +1385,9 @@ function abrirFormulario(s) {
 }
 
 function ayudaPrioridad(p) {
-  if (p === 'Urgente') return 'Pasa adelante de todo en la fila. Úsala solo si de verdad no puede esperar.';
-  if (p === 'Alta') return 'Pasa adelante de las solicitudes normales.';
-  return 'Entra al final de la fila, en orden de llegada.';
+  if (p === 'Urgente') return 'Va antes que todo en la fila. Úsala solo si de verdad no puede esperar.';
+  if (p === 'Alta') return 'Va antes que las normales; entre las altas, primero la que vence antes.';
+  return 'Se ordena por fecha de entrega. Si vence en ' + DIAS_PRONTO + ' días o menos, sube junto a las de prioridad alta.';
 }
 function mostrarErrorForm(t) { const e = $('#form-error'); if (e) { e.textContent = t; e.hidden = false; } else toast(t, true); }
 function cerrarModal() { $('#capa-modal').innerHTML = ''; }
@@ -1668,6 +1718,12 @@ document.addEventListener('click', async ev => {
     if (a === 'cerrar-personas') { S.panelPersonas = ''; refrescarFiltros(); return; }
     if (a === 'solo-yo') { S.excluidos = new Set(personasConPedidos().map(p => p.email).filter(e => e !== S.datos.yo.email)); S.panelPersonas = ''; refrescarFiltros(); renderContenido(); return; }
     if (a === 'ver-mes') return abrirMes();
+    if (a === 'ver-reglas') { S.verReglas = !S.verReglas; renderFila(); return; }
+    if (a === 'ordenar-fila') {
+      if (!await confirmar('Ordenar la fila', 'La fila se ordena con las reglas y se pierden los cambios hechos a mano con las flechas. ¿Seguro?', 'Ordenar')) return;
+      try { aplicarDatos(await conToken('ordenarFila')); toast('Fila ordenada según las reglas.'); } catch (e) { toast(msgError(e), true); }
+      return;
+    }
     if (a === 'cerrar-mes') return cerrarMes();
     if (a === 'usuarios') { alternarMenu(false); return abrirUsuarios(); }
     if (a === 'config') { alternarMenu(false); return abrirConfig(); }
