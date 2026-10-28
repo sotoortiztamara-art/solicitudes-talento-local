@@ -140,22 +140,16 @@ select.entrada{appearance:none;padding-right:34px;background:var(--blanco) url("
 main{max-width:1360px;margin:0 auto;padding:26px 24px 60px}
 
 /* ---------- carga (la parte principal) ---------- */
-.carga{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:14px 40px;align-items:start;margin-bottom:26px}
+.carga{margin-bottom:18px}
 .carga h2{font-family:var(--fuente-titulo);font-weight:600;font-size:38px;line-height:1.05;margin:0;color:var(--petroleo);letter-spacing:-.01em}
 .carga h2 small{display:block;font-size:17px;font-weight:500;color:var(--tinta-3);letter-spacing:0;margin-bottom:6px;font-family:var(--fuente)}
-.carga .resumen{margin:12px 0 0;max-width:62ch;color:var(--tinta-2);font-size:16px}
-.carga .resumen b{color:var(--tinta);font-weight:600}
-.cifras{list-style:none;margin:4px 0 0;padding:0;border-top:1px solid var(--linea)}
-.cifras li{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--linea);font-size:14.5px;color:var(--tinta-2)}
-.cifras li b{font-family:var(--fuente-titulo);font-size:22px;font-weight:600;color:var(--tinta);line-height:1}
-.cifras li.alerta b{color:var(--magenta)}
-.cifras li.alerta span{color:var(--magenta)}
-.cal{grid-column:1/-1;margin-top:6px;min-width:0}
+#semana{margin-bottom:30px}
+.cal{min-width:0}
 .cal-cab{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:10px}
 .cal-cab h3{margin:0;font-family:var(--fuente-titulo);font-weight:600;font-size:19px;color:var(--tinta)}
 .cal-cab .rango{font-size:14px;color:var(--tinta-3)}
 .cal-cab .der{margin-left:auto}
-.cal-cab .segmentado button{height:32px;font-size:14px}
+.cal-cab .btn-chico svg{width:16px;height:16px}
 .cal-nav{display:flex;align-items:center;gap:6px}
 .cal-nav .btn-icono{width:32px;height:32px}
 .mes-titulo{min-width:150px;text-align:center;font-family:var(--fuente-titulo);font-weight:600;font-size:19px;color:var(--tinta)}
@@ -326,6 +320,13 @@ details[open] summary svg{transform:rotate(90deg)}
 .modal-velo{position:fixed;inset:0;background:rgba(10,38,46,.42);z-index:80;display:flex;align-items:flex-start;justify-content:center;padding:6vh 16px;overflow:auto;animation:aparecer .15s ease-out}
 .modal{width:100%;max-width:640px;background:var(--blanco);border-radius:14px;box-shadow:var(--capa)}
 .modal.ancho{max-width:920px}
+#capa-mes .modal-velo{z-index:55}
+.modal.mes-modal{max-width:1180px}
+.mes-filtros{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:16px}
+.mes-filtros .lista-desp.filtro{min-width:165px}
+.mes-filtros .lista-desp.filtro .lista-btn{height:38px}
+.mes-filtros .lista-desp.filtro .lista-opciones{min-width:220px;right:auto}
+.mes-filtros .quitar{font-size:13.5px}
 .modal.chico{max-width:440px}
 .modal>header{display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--linea)}
 .modal>header h2{margin:0;font-family:var(--fuente-titulo);font-weight:600;font-size:23px;color:var(--petroleo);flex:1}
@@ -451,10 +452,12 @@ details[open] summary svg{transform:rotate(90deg)}
   <main>
     <section class="carga" id="carga" aria-live="polite"></section>
     <div class="herramientas" id="herramientas"></div>
+    <section id="semana" aria-label="Entregas de los próximos 7 días"></section>
     <section id="contenido"></section>
   </main>
 </div>
 
+<div id="capa-mes"></div>
 <div id="capa-cajon"></div>
 <div id="capa-modal"></div>
 <div id="capa-confirmar"></div>
@@ -468,9 +471,9 @@ const CLAVE_TOKEN = 'tl_solicitudes_token';
 const S = {
   token: null, datos: null, vista: 'fila', texto: '', excluidos: new Set(), tipo: '', prioridad: '',
   verCerradas: false, verListas: false, verRechazadas: false, detalleId: null, detalleExtra: null,
-  panelPersonas: false, buscarPersona: '',
+  panelPersonas: '', buscarPersona: '',   // panelPersonas: '' cerrado, 'h' en la barra, 'm' en la ventana del mes
   procesando: 0,
-  cal: { vista: 'semana', mes: '', abierto: null }
+  cal: { modal: false, mes: '', abierto: null }
 };
 const ESTADOS = ['Recibida', 'En cola', 'En proceso', 'En revisión', 'Lista', 'Pausada', 'Rechazada', 'Retirada'];
 const ESTADOS_GESTION = ESTADOS.filter(e => e !== 'Retirada');   // "Retirada" la pone solo quien pidió
@@ -492,6 +495,7 @@ const I = {
   abajo: '<path d="m6 9 6 6 6-6"/>',
   derecha: '<path d="m9 18 6-6-6-6"/>',
   izquierda: '<path d="m15 18-6-6 6-6"/>',
+  calendario: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
   recargar: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
   clip: '<path d="m21.4 11.1-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/>',
   chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
@@ -712,57 +716,35 @@ function render() {
   $('#btn-usuario').innerHTML = avatar(d.yo.nombre, d.yo.email) +
     '<span class="txt"><b>' + esc(d.yo.nombre) + '</b><span>' + esc(d.yo.rol) + '</span></span>';
   renderCarga();
-  renderHerramientas();
+  refrescarFiltros();
   renderContenido();
 }
 
 /* ---------- La carga de trabajo, en cantidades ---------- */
 function renderCarga() {
-  const d = S.datos, c = d.carga;
-  const mes = MESES_L[partes(d.hoy).getMonth()];
-  let titulo, resumen;
-  if (c.pendientes > 0) {
-    titulo = '<small>Carga de trabajo</small>' + plural(c.pendientes, 'solicitud pendiente', 'solicitudes pendientes');
-    const trozos = ['<b>' + c.enProceso + ' en proceso</b>', '<b>' + c.enFila + ' esperando en la fila</b>'];
-    if (c.enRevision) trozos.push('<b>' + c.enRevision + ' esperando aprobación</b>');
-    resumen = 'Hay ' + trozos.slice(0, -1).join(', ') + ' y ' + trozos[trozos.length - 1] + '. ' +
-      'Las solicitudes nuevas entran al final de la fila; las de prioridad alta o urgente entran más adelante.';
-  } else {
-    titulo = '<small>Carga de trabajo</small>Sin solicitudes pendientes';
-    resumen = 'No hay nada en proceso ni en la fila. Una solicitud nueva se puede empezar de inmediato.';
-  }
-  const g = nivel() >= 3;
-  const cifras = [
-    ['En proceso', c.enProceso, ''],
-    ['En la fila', c.enFila, (g && c.porRevisar) ? c.porRevisar + ' por revisar' : ''],
-    ['Esperando aprobación', c.enRevision, ''],
-    ['Pausadas', c.pausadas, ''],
-    ['Atrasadas', c.atrasadas, '', c.atrasadas > 0],
-    ['Listas en ' + mes, c.listasMes, '']
-  ];
-  $('#carga').innerHTML =
-    '<div><h2>' + titulo + '</h2><p class="resumen">' + resumen + '</p></div>' +
-    '<ul class="cifras">' + cifras.map(x => '<li class="' + (x[3] ? 'alerta' : '') + '"><span>' + esc(x[0]) +
-      (x[2] ? ' <small style="color:var(--turquesa-texto)">(' + esc(x[2]) + ')</small>' : '') + '</span><b>' + x[1] + '</b></li>').join('') + '</ul>' + renderCalendario();
-  requestAnimationFrame(ajustarCalendario);
+  const c = S.datos.carga;
+  $('#carga').innerHTML = '<h2><small>Carga de trabajo</small>' +
+    (c.pendientes > 0 ? plural(c.pendientes, 'solicitud pendiente', 'solicitudes pendientes') : 'Sin solicitudes pendientes') + '</h2>';
 }
 
-/* ---------- Calendario de entregas (7 días o mes completo) ---------- */
+/* ---------- Calendario de entregas: 7 días en la página y el mes completo en una ventana ---------- */
 const RANGO_P = { Urgente: 0, Alta: 1, Normal: 2 };
 function isoDe(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
-/* Día en que aparece una solicitud: las listas, el día en que se terminaron; las demás, su fecha comprometida o su fecha de entrega */
+/* Día en que aparece una solicitud: las listas, el día en que se terminaron; las pendientes, su fecha comprometida o su fecha de entrega.
+   Las rechazadas y las retiradas no aparecen. */
 function diaCalendario(s) {
   if (s.estado === 'Lista') return String(s.termino || '').slice(0, 10);
   if (CERRADOS.includes(s.estado)) return '';
   return s.fechaComprometida || s.fechaRequerida || '';
 }
-/* Orden dentro de un día: primero lo pendiente, por prioridad (urgente, alta, normal) y luego por fecha de creación */
+/* Respeta los filtros (personas, búsqueda, tipo y prioridad) */
 function eventosPorDia() {
   const m = {};
-  S.datos.solicitudes.forEach(s => { const d = diaCalendario(s); if (d) (m[d] = m[d] || []).push(s); });
+  visibles().forEach(s => { const d = diaCalendario(s); if (d) (m[d] = m[d] || []).push(s); });
   Object.keys(m).forEach(k => ordenarDia(m[k]));
   return m;
 }
+/* Orden dentro de un día: primero lo pendiente, por prioridad (urgente, alta, normal) y luego por fecha de creación */
 function ordenarDia(lista) {
   return lista.sort((a, b) =>
     ((a.estado === 'Lista') - (b.estado === 'Lista')) ||
@@ -777,53 +759,90 @@ function eventoHtml(s) {
     (tarde ? ', atrasada: era para el ' + fCorta(diaCalendario(s)) : '') + ')';
   return '<button class="' + clases + '" data-abrir="' + esc(s.id) + '" title="' + esc(tip) + '"><span>' + esc(s.titulo) + '</span></button>';
 }
-function renderCalendario() {
-  const c = S.cal, m = eventosPorDia(), hoy = S.datos.hoy;
-  if (!c.mes) c.mes = hoy.slice(0, 7);
-  const vistas = '<div class="segmentado" role="group" aria-label="Vista del calendario"><button data-cal="semana" aria-pressed="' + (c.vista === 'semana') + '">7 días</button><button data-cal="mes" aria-pressed="' + (c.vista === 'mes') + '">Mes</button></div>';
-  let cab, cuerpo;
-  if (c.vista === 'semana') {
-    const d0 = partes(hoy), dias = [];
-    for (let i = 0; i < 7; i++) { const d = new Date(d0); d.setDate(d0.getDate() + i); dias.push(d); }
-    const atrasadas = Object.keys(m).filter(k => k < hoy).reduce((t, k) => t.concat(m[k].filter(s => s.estado !== 'Lista')), []);
-    if (atrasadas.length) m[hoy] = ordenarDia(atrasadas.concat(m[hoy] || []));
-    const pendientes = dias.reduce((t, d) => t + (m[isoDe(d)] || []).filter(s => s.estado !== 'Lista').length, 0);
-    cab = '<h3>Entregas de los próximos 7 días</h3><span class="rango">' + plural(pendientes, 'entrega pendiente', 'entregas pendientes') + '</span>';
-    cuerpo = '<div class="cal-scroll"><div class="semana">' + dias.map(d => {
+function leyendaCalendario() {
+  return '<div class="pista-pie"><span><i style="background:var(--petroleo)"></i>En proceso</span>' +
+    '<span><i style="background:var(--turquesa-oscuro)"></i>En cola</span>' +
+    '<span><i style="background:var(--turquesa-suave)"></i>Recibida</span>' +
+    '<span><i style="background:var(--ciruela-tinte);box-shadow:inset 0 0 0 1px var(--ciruela)"></i>En revisión</span>' +
+    '<span><i style="background:var(--ambar-tinte);box-shadow:inset 0 0 0 1px var(--ambar)"></i>Pausada</span>' +
+    '<span><i style="background:var(--verde-tinte);box-shadow:inset 0 0 0 1px var(--verde)"></i>Lista</span>' +
+    '<span><i style="background:var(--magenta);width:4px"></i>Urgente</span>' +
+    '<span><i style="box-shadow:inset 0 0 0 2px var(--magenta)"></i>Atrasada</span></div>';
+}
+function hayFiltros() { return visibles().length !== S.datos.solicitudes.length; }
+
+/* Los próximos 7 días, siempre a la vista */
+function renderSemana() {
+  const m = eventosPorDia(), hoy = S.datos.hoy;
+  const d0 = partes(hoy), dias = [];
+  for (let i = 0; i < 7; i++) { const d = new Date(d0); d.setDate(d0.getDate() + i); dias.push(d); }
+  // lo atrasado que sigue pendiente se muestra en hoy, para que no se pierda
+  const atrasadas = Object.keys(m).filter(k => k < hoy).reduce((t, k) => t.concat(m[k].filter(s => s.estado !== 'Lista')), []);
+  if (atrasadas.length) m[hoy] = ordenarDia(atrasadas.concat(m[hoy] || []));
+  const pendientes = dias.reduce((t, d) => t + (m[isoDe(d)] || []).filter(s => s.estado !== 'Lista').length, 0);
+  $('#semana').innerHTML = '<div class="cal"><div class="cal-cab"><h3>Entregas de los próximos 7 días</h3>' +
+    '<span class="rango">' + plural(pendientes, 'entrega pendiente', 'entregas pendientes') + (hayFiltros() ? ' · con los filtros de arriba' : '') + '</span>' +
+    '<button class="btn btn-chico der" data-acc="ver-mes">' + ico('calendario') + 'Ver mes completo</button></div>' +
+    '<div class="cal-scroll"><div class="semana">' + dias.map(d => {
       const iso = isoDe(d), ev = m[iso] || [];
       const pend = ev.filter(s => s.estado !== 'Lista').length;
       return '<div class="dia' + (iso === hoy ? ' hoy' : '') + '"><div class="dia-cab"><div class="dn">' + (iso === hoy ? 'hoy' : DIAS_C[d.getDay()]) + '</div><div class="dd">' + d.getDate() + '</div>' +
         '<div class="cuenta">' + (pend ? plural(pend, 'entrega', 'entregas') : '&nbsp;') + '</div></div>' +
         '<div class="dia-lista">' + (ev.length ? ev.map(eventoHtml).join('') : '<div class="dia-vacio">Sin entregas</div>') + '</div></div>';
-    }).join('') + '</div></div>';
-  } else {
-    const [y, mo] = c.mes.split('-').map(Number);
-    const primero = new Date(y, mo - 1, 1), ultimo = new Date(y, mo, 0);
-    const inicio = new Date(primero); inicio.setDate(1 - ((primero.getDay() + 6) % 7));               // lunes de la primera semana
-    const fin = new Date(ultimo); fin.setDate(ultimo.getDate() + (6 - ((ultimo.getDay() + 6) % 7)));  // domingo de la última semana
-    const celdas = [];
-    for (let d = new Date(inicio); d <= fin; d.setDate(d.getDate() + 1)) celdas.push(new Date(d));
-    const nombreMes = MESES_L[mo - 1].charAt(0).toUpperCase() + MESES_L[mo - 1].slice(1) + ' ' + y;
-    cab = '<div class="cal-nav"><button class="btn btn-icono" data-cal="prev" aria-label="Mes anterior">' + ico('izquierda') + '</button>' +
+    }).join('') + '</div></div>' + leyendaCalendario() +
+    '<p class="nota-cal">Cada solicitud aparece en su fecha de entrega (o en la fecha comprometida, si hay una). Las listas aparecen el día en que se terminaron y lo atrasado que sigue pendiente se muestra en hoy.</p></div>';
+  requestAnimationFrame(ajustarCalendario);
+}
+
+/* El mes completo, en una ventana con sus propios filtros (son los mismos de la barra: cambiar uno cambia el otro) */
+function abrirMes() {
+  S.cal.modal = true; S.cal.mes = S.datos.hoy.slice(0, 7); S.cal.abierto = null;
+  if (S.panelPersonas) { S.panelPersonas = ''; renderHerramientas(); }
+  $('#capa-mes').innerHTML = '<div class="modal-velo"><div class="modal mes-modal" role="dialog" aria-modal="true" aria-labelledby="titulo-mes">' +
+    '<header><h2 id="titulo-mes">Calendario de entregas</h2><button class="btn btn-fantasma btn-icono" data-acc="cerrar-mes" aria-label="Cerrar">' + ico('cerrar') + '</button></header>' +
+    '<div class="cuerpo"><div class="mes-filtros" id="mes-filtros"></div><div id="mes-grilla"></div></div></div></div>';
+  renderMesFiltros(); renderMes();
+}
+function cerrarMes() {
+  if (!S.cal.modal) return;
+  S.cal.modal = false; S.cal.abierto = null;
+  if (S.panelPersonas === 'm') S.panelPersonas = '';
+  $('#capa-mes').innerHTML = '';
+  renderHerramientas();   // por si se cambió algún filtro dentro de la ventana
+}
+function renderMesFiltros() {
+  const d = S.datos;
+  $('#mes-filtros').innerHTML =
+    '<label class="buscar">' + ico('buscar') + '<span class="sr">Buscar</span><input class="entrada" id="m-texto" placeholder="Buscar solicitud" value="' + esc(S.texto) + '"></label>' +
+    controlPersonas('m') +
+    filtroLista('m-tipo', d.config.tipos, S.tipo, 'Todos los tipos') +
+    filtroLista('m-prioridad', ['Urgente', 'Alta', 'Normal'], S.prioridad, 'Toda prioridad');
+  $('#m-texto').addEventListener('input', e => { S.texto = e.target.value; renderContenido(); });
+  activarBuscarPersona();
+}
+function renderMes() {
+  const c = S.cal, m = eventosPorDia(), hoy = S.datos.hoy;
+  const [y, mo] = c.mes.split('-').map(Number);
+  const primero = new Date(y, mo - 1, 1), ultimo = new Date(y, mo, 0);
+  const inicio = new Date(primero); inicio.setDate(1 - ((primero.getDay() + 6) % 7));               // lunes de la primera semana
+  const fin = new Date(ultimo); fin.setDate(ultimo.getDate() + (6 - ((ultimo.getDay() + 6) % 7)));  // domingo de la última semana
+  const celdas = [];
+  for (let d = new Date(inicio); d <= fin; d.setDate(d.getDate() + 1)) celdas.push(new Date(d));
+  const nombreMes = MESES_L[mo - 1].charAt(0).toUpperCase() + MESES_L[mo - 1].slice(1) + ' ' + y;
+  const delMes = Object.keys(m).filter(k => k.slice(0, 7) === c.mes).reduce((t, k) => t + m[k].length, 0);
+  $('#mes-grilla').innerHTML = '<div class="cal"><div class="cal-cab"><div class="cal-nav">' +
+      '<button class="btn btn-icono" data-cal="prev" aria-label="Mes anterior">' + ico('izquierda') + '</button>' +
       '<span class="mes-titulo">' + esc(nombreMes) + '</span><button class="btn btn-icono" data-cal="next" aria-label="Mes siguiente">' + ico('derecha') + '</button></div>' +
-      (c.mes !== hoy.slice(0, 7) ? '<button class="btn btn-chico" data-cal="hoy">Volver a hoy</button>' : '');
-    cuerpo = '<div class="cal-scroll"><div class="mes-grid">' + ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'].map(n => '<div class="mes-dn">' + n + '</div>').join('') +
+      (c.mes !== hoy.slice(0, 7) ? '<button class="btn btn-chico" data-cal="hoy">Volver a hoy</button>' : '') +
+      '<span class="rango der">' + plural(delMes, 'solicitud', 'solicitudes') + ' en ' + MESES_L[mo - 1] + (hayFiltros() ? ' · con filtros' : '') + '</span></div>' +
+    '<div class="cal-scroll"><div class="mes-grid">' + ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'].map(n => '<div class="mes-dn">' + n + '</div>').join('') +
       celdas.map(d => {
         const iso = isoDe(d), ev = m[iso] || [];
         return '<div class="celda' + (d.getMonth() !== mo - 1 ? ' fuera' : '') + (iso === hoy ? ' hoy' : '') + (c.abierto === iso ? ' abierta' : '') + '" data-dia="' + iso + '">' +
           '<span class="num">' + d.getDate() + '</span><div class="eventos">' + ev.map(eventoHtml).join('') + '</div><span class="mas" hidden></span></div>';
-      }).join('') + '</div></div>';
-  }
-  return '<div class="cal" id="calendario"><div class="cal-cab">' + cab + '<div class="der">' + vistas + '</div></div>' + cuerpo +
-    '<div class="pista-pie"><span><i style="background:var(--petroleo)"></i>En proceso</span>' +
-    '<span><i style="background:var(--turquesa-oscuro)"></i>En cola</span>' +
-    '<span><i style="background:var(--turquesa-suave)"></i>Recibida</span>' +
-    '<span><i style="background:var(--ciruela-tinte);box-shadow:inset 0 0 0 1px var(--ciruela)"></i>En revisión</span>' +
-    '<span><i style="background:var(--verde-tinte);box-shadow:inset 0 0 0 1px var(--verde)"></i>Lista</span>' +
-    '<span><i style="background:var(--magenta);width:4px"></i>Urgente</span>' +
-    '<span><i style="box-shadow:inset 0 0 0 2px var(--magenta)"></i>Atrasada</span></div>' +
-    '<p class="nota-cal">Cada solicitud aparece en su fecha de entrega (o en la fecha comprometida, si hay una). Las listas aparecen el día en que se terminaron.' +
-    (c.vista === 'mes' ? ' Haz clic en un día para ver todas sus solicitudes.' : ' Lo atrasado que sigue pendiente se muestra en hoy.') + '</p></div>';
+      }).join('') + '</div></div>' + leyendaCalendario() +
+    '<p class="nota-cal">Haz clic en un día para ver todas sus solicitudes, y en una solicitud para abrir su detalle. Las rechazadas y las retiradas no aparecen.</p></div>';
+  requestAnimationFrame(ajustarCalendario);
 }
 /* Ajustes después de dibujar: en 7 días todas las tarjetas del mismo alto; en el mes, "+N más" si no caben */
 function ajustarCalendario() {
@@ -850,14 +869,13 @@ window.addEventListener('resize', () => { clearTimeout(temporizadorCal); tempori
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (S.datos) ajustarCalendario(); });
 function accionCalendario(a) {
   const c = S.cal;
-  if (a === 'semana' || a === 'mes') { c.vista = a; c.abierto = null; }
-  else if (a === 'hoy') { c.mes = S.datos.hoy.slice(0, 7); c.abierto = null; }
+  if (a === 'hoy') { c.mes = S.datos.hoy.slice(0, 7); c.abierto = null; }
   else {
     const [y, m] = c.mes.split('-').map(Number);
     const d = new Date(y, m - 1 + (a === 'next' ? 1 : -1), 1);
     c.mes = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); c.abierto = null;
   }
-  renderCarga();
+  renderMes();
 }
 
 /* ---------- Herramientas: vista y filtros ---------- */
@@ -871,8 +889,11 @@ function personasConPedidos() {
   return Array.from(m.values()).sort((a, b) => a.nombre.localeCompare(b.nombre));
 }
 
-function renderHerramientas() {
-  const d = S.datos;
+function filtroLista(id, opciones, valor, todasTxt) {
+  return listaDesplegable(id, [{ valor: '', texto: todasTxt }].concat(opciones), valor, todasTxt, { clase: 'filtro', ariaLabel: todasTxt });
+}
+/* Botón "Todas las personas" con su panel; donde = 'h' (barra) o 'm' (ventana del mes) */
+function controlPersonas(donde) {
   const gente = personasConPedidos();
   const incluidas = gente.filter(p => !S.excluidos.has(p.email));
   const todas = incluidas.length === gente.length;
@@ -880,27 +901,38 @@ function renderHerramientas() {
   if (gente.length && !incluidas.length) etiqueta = 'Nadie';
   else if (!todas) etiqueta = incluidas.length === 1 ? incluidas[0].nombre : incluidas.length + ' de ' + gente.length + ' personas';
   const pila = incluidas.slice(0, 4).map(p => avatar(p.nombre, p.email, 'c')).join('');
-  const sel = (id, opciones, valor, todasTxt) => listaDesplegable(id, [{ valor: '', texto: todasTxt }].concat(opciones), valor, todasTxt, { clase: 'filtro', ariaLabel: todasTxt });
+  const abierto = S.panelPersonas === donde;
+  return '<div class="envoltura-menu"><button class="personas-btn' + (todas ? '' : ' filtrado') + '"' + (donde === 'h' ? ' id="btn-personas"' : '') + ' data-personas="' + donde + '" aria-haspopup="true" aria-expanded="' + abierto + '">' +
+    '<span class="pila">' + pila + '</span><span>' + esc(etiqueta) + '</span>' + ico('abajo').replace('<svg ', '<svg style="width:15px;height:15px" ') + '</button>' +
+    (abierto ? panelPersonas(gente) : '') + '</div>';
+}
+function activarBuscarPersona() {
+  const bp = $('#buscar-persona');
+  if (!bp || bp.dataset.listo) return;
+  bp.dataset.listo = '1';
+  bp.addEventListener('input', e => { S.buscarPersona = e.target.value; filtrarListaPersonas(); });
+  bp.focus();
+  filtrarListaPersonas();
+}
+/* Vuelve a dibujar los filtros de la barra y, si está abierta, los de la ventana del mes */
+function refrescarFiltros() {
+  renderHerramientas();
+  if (S.cal.modal) renderMesFiltros();
+}
 
+function renderHerramientas() {
+  const d = S.datos;
   $('#herramientas').innerHTML =
     '<div class="segmentado" role="group" aria-label="Vista">' +
       '<button data-vista="fila" aria-pressed="' + (S.vista === 'fila') + '">Fila de espera</button>' +
       '<button data-vista="tablero" aria-pressed="' + (S.vista === 'tablero') + '">Tablero</button></div>' +
     '<label class="buscar">' + ico('buscar') + '<span class="sr">Buscar</span><input class="entrada" id="f-texto" placeholder="Buscar solicitud" value="' + esc(S.texto) + '"></label>' +
-    '<div class="envoltura-menu"><button class="personas-btn' + (todas ? '' : ' filtrado') + '" id="btn-personas" aria-haspopup="true" aria-expanded="' + S.panelPersonas + '">' +
-      '<span class="pila">' + pila + '</span><span>' + esc(etiqueta) + '</span>' + ico('abajo').replace('<svg ', '<svg style="width:15px;height:15px" ') + '</button>' +
-      (S.panelPersonas ? panelPersonas(gente) : '') + '</div>' +
-    sel('f-tipo', d.config.tipos, S.tipo, 'Todos los tipos') +
-    sel('f-prioridad', ['Urgente', 'Alta', 'Normal'], S.prioridad, 'Toda prioridad') +
+    controlPersonas('h') +
+    filtroLista('f-tipo', d.config.tipos, S.tipo, 'Todos los tipos') +
+    filtroLista('f-prioridad', ['Urgente', 'Alta', 'Normal'], S.prioridad, 'Toda prioridad') +
     '<div class="fin"><span>Actualizado ' + esc(d.actualizado) + '</span><button class="btn btn-fantasma btn-icono" data-acc="recargar" aria-label="Actualizar" title="Actualizar">' + ico('recargar') + '</button></div>';
-
   $('#f-texto').addEventListener('input', e => { S.texto = e.target.value; renderContenido(); });
-  const bp = $('#buscar-persona');
-  if (bp) {
-    bp.addEventListener('input', e => { S.buscarPersona = e.target.value; filtrarListaPersonas(); });
-    bp.focus();
-    filtrarListaPersonas();
-  }
+  activarBuscarPersona();
 }
 
 function panelPersonas(gente) {
@@ -933,7 +965,9 @@ function visibles() {
 }
 
 function renderContenido() {
+  renderSemana();
   if (S.vista === 'tablero') renderTablero(); else renderFila();
+  if (S.cal.modal) renderMes();
 }
 
 /* ---------- Vista fila de espera ---------- */
@@ -1304,7 +1338,7 @@ function ponerModal(html) {
   const tmp = document.createElement('div'); tmp.innerHTML = html;
   velo.innerHTML = tmp.firstElementChild.innerHTML;
 }
-function cerrarCapas() { cerrarModal(); cerrarCajon(); $('#capa-confirmar').innerHTML = ''; }
+function cerrarCapas() { cerrarModal(); cerrarCajon(); $('#capa-confirmar').innerHTML = ''; S.cal.modal = false; S.panelPersonas = ''; $('#capa-mes').innerHTML = ''; }
 
 function confirmar(titulo, texto, textoBoton) {
   return new Promise(ok => {
@@ -1416,11 +1450,16 @@ function elegirEnLista(caja, li) {
 /* Qué hacer cuando cambia una lista: filtros de arriba y limpiar errores de formularios */
 document.addEventListener('cambio', ev => {
   const d = ev.detail || {};
-  if (d.nombre === 'f-tipo') { S.tipo = d.valor; renderContenido(); }
-  else if (d.nombre === 'f-prioridad') { S.prioridad = d.valor; renderContenido(); }
+  if (d.nombre === 'f-tipo' || d.nombre === 'm-tipo') { S.tipo = d.valor; otrosFiltros(d.nombre); renderContenido(); }
+  else if (d.nombre === 'f-prioridad' || d.nombre === 'm-prioridad') { S.prioridad = d.valor; otrosFiltros(d.nombre); renderContenido(); }
   const form = ev.target.closest && ev.target.closest('form');
   if (form) { const e = form.querySelector('[data-error="' + d.nombre + '"]'); if (e) e.textContent = ''; }
 });
+/* Al cambiar un filtro en la barra se actualiza la ventana del mes, y al revés (sin redibujar la lista que se está usando) */
+function otrosFiltros(nombre) {
+  if (nombre.charAt(0) === 'm') renderHerramientas();
+  else if (S.cal.modal) renderMesFiltros();
+}
 /* Pone el foco en un campo; si es una lista propia, en su botón */
 function enfocarCampo(form, nombre) {
   const el = form.querySelector('[name="' + nombre + '"]');
@@ -1521,10 +1560,10 @@ function alternarMenu(abrir) {
    EVENTOS (un solo manejador para todo)
    ===================================================================== */
 /* Solo cuenta como "clic afuera" si el clic empezó afuera (así no se cierra al seleccionar texto y soltar fuera) */
-let pulsoEnVelo = false;
+let veloPulsado = null;
 document.addEventListener('mousedown', ev => {
   const t = ev.target;
-  pulsoEnVelo = !!(t.classList && t.classList.contains('modal-velo') && t.parentElement && t.parentElement.id === 'capa-modal');
+  veloPulsado = (t.classList && t.classList.contains('modal-velo')) ? t : null;
 });
 
 document.addEventListener('click', async ev => {
@@ -1542,14 +1581,18 @@ document.addEventListener('click', async ev => {
   cerrarListas();
 
   // clic afuera de una ventana: se cierra sin guardar
-  if (t.classList && t.classList.contains('modal-velo') && t.parentElement && t.parentElement.id === 'capa-modal' && pulsoEnVelo) { if (!S.procesando) cerrarModal(); return; }
+  if (t.classList && t.classList.contains('modal-velo') && t === veloPulsado && t.parentElement) {
+    if (t.parentElement.id === 'capa-modal') { if (!S.procesando) cerrarModal(); return; }
+    if (t.parentElement.id === 'capa-mes') { cerrarMes(); return; }
+  }
 
   // cerrar menús al hacer clic fuera
   if (!t.closest('#menu-usuario') && !t.closest('#btn-usuario') && !$('#menu-usuario').hidden) alternarMenu(false);
-  if (S.panelPersonas && !t.closest('#panel-personas') && !t.closest('#btn-personas')) { S.panelPersonas = false; renderHerramientas(); }
+  if (S.panelPersonas && !t.closest('#panel-personas') && !t.closest('[data-personas]')) { S.panelPersonas = ''; refrescarFiltros(); }
 
   if (t.closest('#btn-usuario')) { alternarMenu(); return; }
-  if (t.closest('#btn-personas')) { S.panelPersonas = !S.panelPersonas; S.buscarPersona = ''; renderHerramientas(); return; }
+  const btnPers = t.closest('[data-personas]');
+  if (btnPers) { const d = btnPers.dataset.personas; S.panelPersonas = S.panelPersonas === d ? '' : d; S.buscarPersona = ''; refrescarFiltros(); return; }
 
   const vista = t.closest('[data-vista]');
   if (vista) { S.vista = vista.dataset.vista; renderHerramientas(); renderContenido(); return; }
@@ -1557,7 +1600,7 @@ document.addEventListener('click', async ev => {
   const calBtn = t.closest('[data-cal]');
   if (calBtn) { accionCalendario(calBtn.dataset.cal); return; }
   const celda = t.closest('.celda[data-dia]');
-  if (celda && !t.closest('.evento')) { S.cal.abierto = S.cal.abierto === celda.dataset.dia ? null : celda.dataset.dia; renderCarga(); return; }
+  if (celda && !t.closest('.evento')) { S.cal.abierto = S.cal.abierto === celda.dataset.dia ? null : celda.dataset.dia; renderMes(); return; }
 
   const plegar = t.closest('[data-plegar]');
   if (plegar) { S[plegar.dataset.plegar] = !S[plegar.dataset.plegar]; renderFila(); return; }
@@ -1588,7 +1631,7 @@ document.addEventListener('click', async ev => {
       const e = chk.dataset.persona;
       if (chk.checked) S.excluidos.delete(e); else S.excluidos.add(e);
     }
-    renderHerramientas(); renderContenido(); return;
+    refrescarFiltros(); renderContenido(); return;
   }
 
   const acc = t.closest('[data-acc]');
@@ -1598,8 +1641,10 @@ document.addEventListener('click', async ev => {
     if (a === 'recargar') { try { aplicarDatos(await ocupado(acc, '…', () => conToken('cargarDatos'))); toast('Actualizado.'); } catch (e) { toast(msgError(e), true); } return; }
     if (a === 'cerrar-cajon') return cerrarCajon();
     if (a === 'cerrar-modal') return cerrarModal();
-    if (a === 'cerrar-personas') { S.panelPersonas = false; renderHerramientas(); return; }
-    if (a === 'solo-yo') { S.excluidos = new Set(personasConPedidos().map(p => p.email).filter(e => e !== S.datos.yo.email)); S.panelPersonas = false; renderHerramientas(); renderContenido(); return; }
+    if (a === 'cerrar-personas') { S.panelPersonas = ''; refrescarFiltros(); return; }
+    if (a === 'solo-yo') { S.excluidos = new Set(personasConPedidos().map(p => p.email).filter(e => e !== S.datos.yo.email)); S.panelPersonas = ''; refrescarFiltros(); renderContenido(); return; }
+    if (a === 'ver-mes') return abrirMes();
+    if (a === 'cerrar-mes') return cerrarMes();
     if (a === 'usuarios') { alternarMenu(false); return abrirUsuarios(); }
     if (a === 'config') { alternarMenu(false); return abrirConfig(); }
     if (a === 'clave') { alternarMenu(false); return abrirCambioClave(); }
@@ -1637,10 +1682,11 @@ document.addEventListener('click', async ev => {
 document.addEventListener('keydown', ev => {
   if (ev.key === 'Escape') {
     if ($('#capa-confirmar').innerHTML) { $('#capa-confirmar').innerHTML = ''; return; }
+    if (S.panelPersonas) { S.panelPersonas = ''; refrescarFiltros(); return; }
     if ($('#capa-modal').innerHTML) { if (!S.procesando) cerrarModal(); return; }
-    if (S.panelPersonas) { S.panelPersonas = false; renderHerramientas(); return; }
     if (!$('#menu-usuario').hidden) { alternarMenu(false); return; }
     if (S.detalleId) { if (!S.procesando) cerrarCajon(); return; }
+    if (S.cal.modal) { cerrarMes(); return; }
   }
   if (ev.key === 'Enter' && ev.target.matches('.fila[data-abrir], .tarjeta[data-abrir]')) abrirDetalle(ev.target.dataset.abrir);
 });
