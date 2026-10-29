@@ -55,6 +55,7 @@ a{color:var(--petroleo)}
 .btn-icono{width:38px;padding:0}
 .btn-chico{height:32px;padding:0 12px;font-size:14px}
 .btn[disabled]{opacity:.6;cursor:progress}
+#capa-confirmar #conf-si[disabled]{opacity:.85}
 .campo{display:flex;flex-direction:column;gap:6px;min-width:0}
 .campo>span{font-size:14px;font-weight:500;color:var(--tinta)}
 .campo small{color:var(--tinta-3);font-size:13px}
@@ -114,10 +115,12 @@ select.entrada{appearance:none;padding-right:34px;background:var(--blanco) url("
 .check{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--tinta-2);cursor:pointer}
 .check input{width:16px;height:16px;accent-color:var(--petroleo)}
 .aviso-login{font-size:13px;color:var(--tinta-3);margin-top:18px;line-height:1.45}
+.req{color:var(--magenta);font-weight:700;margin-left:3px}
+.nota-obligatorio{margin:0;font-size:13px;color:var(--tinta-3)}
 .mensaje-error{background:var(--magenta-tinte);color:var(--magenta);padding:10px 12px;border-radius:var(--radio-chico);font-size:14px}
 
 /* ---------- barra superior ---------- */
-.barra{background:var(--blanco);border-bottom:1px solid var(--linea)}
+.barra{background:var(--blanco);position:sticky;top:0;z-index:35}   /* queda fija arriba al hacer scroll */
 .barra-in{max-width:1360px;margin:0 auto;height:66px;padding:0 24px;display:flex;align-items:center;gap:18px}
 .barra .logo{width:104px;flex:none}
 .barra .sep{width:1px;height:30px;background:var(--linea)}
@@ -198,7 +201,7 @@ main{max-width:1360px;margin:0 auto;padding:26px 24px 60px}
 .pista-pie i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
 
 /* ---------- herramientas ---------- */
-.herramientas{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--linea);margin-bottom:18px;position:sticky;top:0;background:var(--fondo);z-index:20}
+.herramientas{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--linea);margin-bottom:18px;position:sticky;top:69px;background:var(--fondo);z-index:20}
 .buscar{position:relative;flex:1 1 220px;max-width:340px}
 .buscar svg{position:absolute;left:11px;top:11px;width:17px;height:17px;color:var(--tinta-3)}
 .buscar .entrada{padding-left:36px;height:38px}
@@ -470,8 +473,8 @@ details[open] summary svg{transform:rotate(90deg)}
         <div class="menu" id="menu-usuario" hidden></div>
       </div>
     </div>
+    <div class="franja"></div>
   </header>
-  <div class="franja"></div>
   <main>
     <section class="carga" id="carga" aria-live="polite"></section>
     <div class="herramientas" id="herramientas"></div>
@@ -502,6 +505,7 @@ const ESTADOS = ['Recibida', 'En cola', 'En proceso', 'En revisión', 'Lista', '
 const ESTADOS_GESTION = ESTADOS.filter(e => e !== 'Retirada');   // "Retirada" la pone solo quien pidió
 const EN_FILA = ['Recibida', 'En cola'];
 const CERRADOS = ['Lista', 'Rechazada', 'Retirada'];
+const OBL = '<span class="req" aria-hidden="true">*</span>';   // marca de campo obligatorio
 const ESTADOS_FILTRO = ['Recibida', 'En cola', 'En proceso', 'En revisión', 'Pausada', 'Lista'];   // los que aparecen en el calendario
 const ROLES = ['Lector', 'Solicitante', 'Gestor', 'Administrador'];
 const COLORES = ['#0E5664', '#137A73', '#A2205C', '#7A3B69', '#2F6B8A', '#5B7079', '#8A5A2B', '#3E6B4F'];
@@ -1331,13 +1335,14 @@ function abrirFormulario(s) {
   $('#capa-modal').innerHTML = '<div class="modal-velo"><form class="modal" id="form-pedido" novalidate role="dialog" aria-modal="true" aria-labelledby="titulo-form">' +
     '<header><h2 id="titulo-form">' + (edit ? 'Editar ' + esc(s.id) : 'Nueva solicitud') + '</h2><button type="button" class="btn btn-fantasma btn-icono" data-acc="cerrar-modal" aria-label="Cerrar">' + ico('cerrar') + '</button></header>' +
     '<div class="cuerpo"><div class="form-rejilla">' +
-      '<label class="campo todo"><span>¿Qué necesitas?</span><input class="entrada" name="titulo" maxlength="140" value="' + esc(v.titulo) + '" placeholder="Video de cierre del curso de operador de grúa horquilla"><span class="error-campo" data-error="titulo"></span></label>' +
-      '<div class="campo"><span id="et-tipo">Tipo de pieza</span>' + listaDesplegable('tipo', d.config.tipos, v.tipo, 'Elige un tipo', { etiqueta: 'et-tipo' }) + '<span class="error-campo" data-error="tipo"></span></div>' +
-      '<div class="campo"><span id="et-areasol">Área que lo pide</span>' + listaDesplegable('area', d.config.areas, v.area, 'Elige un área', { etiqueta: 'et-areasol' }) + '<span class="error-campo" data-error="area"></span></div>' +
+      '<p class="nota-obligatorio todo">Los campos con' + OBL + ' son obligatorios.</p>' +
+      '<label class="campo todo"><span>¿Qué necesitas?' + OBL + '</span><input class="entrada" name="titulo" aria-required="true" maxlength="140" value="' + esc(v.titulo) + '" placeholder="Video de cierre del curso de operador de grúa horquilla"><span class="error-campo" data-error="titulo"></span></label>' +
+      '<div class="campo"><span id="et-tipo">Tipo de pieza' + OBL + '</span>' + listaDesplegable('tipo', d.config.tipos, v.tipo, 'Elige un tipo', { etiqueta: 'et-tipo' }) + '<span class="error-campo" data-error="tipo"></span></div>' +
+      '<div class="campo"><span id="et-areasol">Área que lo pide' + OBL + '</span>' + listaDesplegable('area', d.config.areas, v.area, 'Elige un área', { etiqueta: 'et-areasol' }) + '<span class="error-campo" data-error="area"></span></div>' +
       '<label class="campo"><span>Fecha de entrega</span><input class="entrada" type="date" name="fechaRequerida" value="' + esc(v.fechaRequerida) + '"' + (edit ? '' : ' min="' + d.hoy + '"') + '><small>Para cuándo lo necesitas. Déjalo vacío si no tiene fecha.</small></label>' +
       '<div class="campo"><span>Prioridad</span><div class="segmentado" role="group" aria-label="Prioridad">' + ['Normal', 'Alta', 'Urgente'].map(p => '<button type="button" data-f-prio="' + p + '" class="' + (p === 'Urgente' ? 'urgente' : '') + '" aria-pressed="' + (p === v.prioridad) + '">' + p + '</button>').join('') + '</div>' +
         '<small id="ayuda-prio">' + ayudaPrioridad(v.prioridad) + '</small></div>' +
-      '<label class="campo todo"><span>Detalle</span><textarea class="entrada" name="descripcion" rows="5" placeholder="Para qué es, dónde se va a publicar, formato, textos que debe llevar, a quién está dirigido.">' + esc(v.descripcion) + '</textarea><span class="error-campo" data-error="descripcion"></span></label>' +
+      '<label class="campo todo"><span>Detalle' + OBL + '</span><textarea class="entrada" name="descripcion" aria-required="true" rows="5" placeholder="Para qué es, dónde se va a publicar, formato, textos que debe llevar, a quién está dirigido.">' + esc(v.descripcion) + '</textarea><span class="error-campo" data-error="descripcion"></span></label>' +
       '<label class="campo todo"><span>Links o referencias <small>(opcional)</small></span><textarea class="entrada" name="links" rows="2" style="min-height:64px" placeholder="https://drive.google.com/…">' + esc(v.links) + '</textarea></label>' +
       (edit ? '' : '<div class="campo todo"><span>Archivos <small>(opcional, hasta ' + d.config.maxMb + ' MB cada uno)</small></span><label class="btn btn-chico" style="align-self:flex-start">' + ico('clip') + '<span>Adjuntar archivos</span><input type="file" name="archivos" multiple hidden></label><div class="lista-archivos" id="lista-archivos"></div></div>') +
       '<div class="todo mensaje-error" id="form-error" hidden></div>' +
@@ -1423,15 +1428,28 @@ function historialHtml(h) {
   return '<li>' + cab + (h.detalle ? ': ' + esc(h.detalle) : '') + pie + '</li>';
 }
 
-function confirmar(titulo, texto, textoBoton) {
+/* campo (opcional): { etiqueta, ayuda } agrega un cuadro de texto; lo escrito le llega a la acción */
+function confirmar(titulo, texto, textoBoton, accion, textoOcupado, campo) {
   return new Promise(ok => {
     $('#capa-confirmar').innerHTML = '<div class="modal-velo" style="z-index:90"><div class="modal chico" role="alertdialog" aria-modal="true" aria-labelledby="conf-t"><header><h2 id="conf-t">' + esc(titulo) + '</h2></header>' +
-      '<div class="cuerpo"><p style="margin:0;color:var(--tinta-2)">' + esc(texto) + '</p></div>' +
+      '<div class="cuerpo"><p style="margin:0;color:var(--tinta-2)">' + esc(texto) + '</p>' +
+      (campo ? '<label class="campo" style="margin-top:14px"><span>' + esc(campo.etiqueta) + ' <small style="font-weight:400;color:var(--tinta-3)">(opcional)</small></span>' +
+        '<textarea class="entrada" id="conf-campo" rows="3" maxlength="1000" placeholder="' + esc(campo.ayuda || '') + '"></textarea></label>' : '') + '</div>' +
       '<footer><button class="btn" id="conf-no">Cancelar</button><button class="btn btn-primario" id="conf-si" style="background:var(--magenta);border-color:var(--magenta)">' + esc(textoBoton) + '</button></footer></div></div>';
     const fin = r => { $('#capa-confirmar').innerHTML = ''; ok(r); };
     $('#conf-no').onclick = () => fin(false);
-    $('#conf-si').onclick = () => fin(true);
-    $('#conf-si').focus();
+    /* Si viene una acción, el cuadro queda abierto con el botón en "…ndo" hasta que termine */
+    $('#conf-si').onclick = async () => {
+      if (!accion) return fin(true);
+      const si = $('#conf-si');
+      const caja = $('#conf-campo'), valor = caja ? caja.value.trim() : '';
+      si.disabled = true; $('#conf-no').disabled = true; if (caja) caja.disabled = true; si.textContent = textoOcupado || 'Procesando…';
+      S.procesando++;
+      try { await accion(valor); fin(true); }
+      catch (e) { fin(false); toast(msgError(e), true); }
+      finally { S.procesando = Math.max(0, S.procesando - 1); }
+    };
+    ($('#conf-campo') || $('#conf-si')).focus();
   });
 }
 
@@ -1453,11 +1471,12 @@ function renderUsuarios(editando) {
     '<header><h2 id="titulo-usu">Personas y accesos</h2><button class="btn btn-fantasma btn-icono" data-acc="cerrar-modal" aria-label="Cerrar">' + ico('cerrar') + '</button></header><div class="cuerpo">' +
     '<div class="roles-ayuda"><div><b>Lector:</b> solo mira.</div><div><b>Solicitante:</b> crea solicitudes y las edita mientras están en "Recibida".</div><div><b>Gestor:</b> además cambia estados, estima, prioriza y ordena la fila.</div><div><b>Administrador:</b> todo, incluido personas y configuración.</div></div>' +
     '<form class="caja-form" id="form-usuario" novalidate><h3>' + (esNuevo ? 'Agregar persona' : 'Editar a ' + esc(u.nombre)) + '</h3><div class="form-rejilla">' +
-      '<label class="campo"><span>Nombre</span><input class="entrada" name="nombre" value="' + esc(u.nombre) + '" placeholder="Juan Pérez"></label>' +
-      '<label class="campo"><span>Correo</span><input class="entrada" name="email" type="email" value="' + esc(u.email) + '" placeholder="juan@gmail.com"' + (u.esDuena ? ' readonly' : '') + '></label>' +
-      '<div class="campo"><span id="et-rol">Rol</span>' + listaDesplegable('rol', ROLES, u.rol, 'Elige un rol', { etiqueta: 'et-rol', disabled: u.esDuena }) + '</div>' +
+      '<p class="nota-obligatorio todo">Los campos con' + OBL + ' son obligatorios.</p>' +
+      '<label class="campo"><span>Nombre' + OBL + '</span><input class="entrada" name="nombre" aria-required="true" value="' + esc(u.nombre) + '" placeholder="Juan Pérez"></label>' +
+      '<label class="campo"><span>Correo' + OBL + '</span><input class="entrada" name="email" type="email" aria-required="true" value="' + esc(u.email) + '" placeholder="juan@gmail.com"' + (u.esDuena ? ' readonly' : '') + '></label>' +
+      '<div class="campo"><span id="et-rol">Rol' + OBL + '</span>' + listaDesplegable('rol', ROLES, u.rol, 'Elige un rol', { etiqueta: 'et-rol', disabled: u.esDuena }) + '</div>' +
       '<div class="campo"><span id="et-area">Área</span>' + listaDesplegable('area', areas, u.area, 'Elige un área', { etiqueta: 'et-area' }) + '</div>' +
-      '<label class="campo"><span>Contraseña</span><span style="display:flex;gap:8px"><input class="entrada" name="clave" value="' + esc(u.clave) + '" placeholder="Mínimo 6 caracteres"><button type="button" class="btn" data-acc="generar-clave">Generar</button></span><small>Pásasela a la persona por un canal privado.</small></label>' +
+      '<label class="campo"><span>Contraseña' + OBL + '</span><span style="display:flex;gap:8px"><input class="entrada" name="clave" aria-required="true" value="' + esc(u.clave) + '" placeholder="Mínimo 6 caracteres"><button type="button" class="btn" data-acc="generar-clave">Generar</button></span><small>Pásasela a la persona por un canal privado.</small></label>' +
       '<div class="campo"><span id="et-acceso">Acceso</span>' + listaDesplegable('activo', [{ valor: 'Sí', texto: 'Activo' }, { valor: 'No', texto: 'Sin acceso' }], u.activo || 'Sí', 'Activo', { etiqueta: 'et-acceso', disabled: u.esDuena }) + '</div>' +
       '<div class="todo mensaje-error" id="usu-error" hidden></div>' +
       '<div class="todo" style="display:flex;gap:8px;justify-content:flex-end">' + (esNuevo ? '' : '<button type="button" class="btn" data-acc="cancelar-usuario">Cancelar</button>') +
@@ -1587,10 +1606,11 @@ function abrirConfig() {
   $('#capa-modal').innerHTML = '<div class="modal-velo"><form class="modal" id="form-config" novalidate role="dialog" aria-modal="true" aria-labelledby="titulo-cfg">' +
     '<header><h2 id="titulo-cfg">Configuración</h2><button type="button" class="btn btn-fantasma btn-icono" data-acc="cerrar-modal" aria-label="Cerrar">' + ico('cerrar') + '</button></header>' +
     '<div class="cuerpo"><div class="form-rejilla">' +
-      '<label class="campo"><span>Nombre de la app</span><input class="entrada" name="titulo" value="' + esc(c.titulo) + '"></label>' +
+      '<p class="nota-obligatorio todo">Los campos con' + OBL + ' son obligatorios.</p>' +
+      '<label class="campo"><span>Nombre de la app' + OBL + '</span><input class="entrada" name="titulo" aria-required="true" value="' + esc(c.titulo) + '"></label>' +
       '<label class="campo"><span>Texto bajo el nombre</span><input class="entrada" name="subtitulo" value="' + esc(c.subtitulo) + '"></label>' +
-      '<label class="campo"><span>Tipos de pieza <small>(uno por línea)</small></span><textarea class="entrada" name="tipos" rows="7">' + esc(c.tipos.join('\n')) + '</textarea></label>' +
-      '<label class="campo"><span>Áreas <small>(una por línea)</small></span><textarea class="entrada" name="areas" rows="7">' + esc(c.areas.join('\n')) + '</textarea></label>' +
+      '<label class="campo"><span>Tipos de pieza' + OBL + ' <small>(uno por línea)</small></span><textarea class="entrada" name="tipos" aria-required="true" rows="7">' + esc(c.tipos.join('\n')) + '</textarea></label>' +
+      '<label class="campo"><span>Áreas' + OBL + ' <small>(una por línea)</small></span><textarea class="entrada" name="areas" aria-required="true" rows="7">' + esc(c.areas.join('\n')) + '</textarea></label>' +
       '<label class="campo todo"><span>Correos del resumen semanal</span><input class="entrada" name="correos_resumen" value="' + esc(c.correosResumen) + '" placeholder="jefe@talentolocal.cl"><small>Se envía los lunes a las 8. Separa con comas.</small></label>' +
       '<label class="campo todo"><span>Link de la app <small>(para los botones de los correos)</small></span><input class="entrada" name="url_app" value="' + esc(c.urlApp) + '" placeholder="https://script.google.com/macros/s/…/exec"></label>' +
       '<div class="todo mensaje-error" id="cfg-error" hidden></div>' +
@@ -1609,8 +1629,8 @@ function abrirCambioClave() {
   $('#capa-modal').innerHTML = '<div class="modal-velo"><form class="modal chico" id="form-clave" novalidate role="dialog" aria-modal="true" aria-labelledby="titulo-clave">' +
     '<header><h2 id="titulo-clave">Cambiar mi contraseña</h2><button type="button" class="btn btn-fantasma btn-icono" data-acc="cerrar-modal" aria-label="Cerrar">' + ico('cerrar') + '</button></header>' +
     '<div class="cuerpo" style="display:flex;flex-direction:column;gap:14px">' +
-      '<label class="campo"><span>Contraseña actual</span><input class="entrada" type="password" name="actual" autocomplete="current-password"></label>' +
-      '<label class="campo"><span>Nueva contraseña</span><input class="entrada" type="password" name="nueva" autocomplete="new-password"><small>Mínimo 6 caracteres.</small></label>' +
+      '<label class="campo"><span>Contraseña actual' + OBL + '</span><input class="entrada" type="password" name="actual" aria-required="true" autocomplete="current-password"></label>' +
+      '<label class="campo"><span>Nueva contraseña' + OBL + '</span><input class="entrada" type="password" name="nueva" aria-required="true" autocomplete="new-password"><small>Mínimo 6 caracteres.</small></label>' +
       '<div class="mensaje-error" id="clave-error" hidden></div></div>' +
     '<footer><button type="button" class="btn" data-acc="cerrar-modal">Cancelar</button><button class="btn btn-primario" type="submit" id="btn-clave">Cambiar contraseña</button></footer></form></div>';
   const form = $('#form-clave');
@@ -1740,8 +1760,8 @@ document.addEventListener('click', async ev => {
     if (a === 'ver-mes') return abrirMes();
     if (a === 'ver-reglas') return abrirReglas();
     if (a === 'ordenar-fila') {
-      if (!await confirmar('Ordenar según las reglas', 'Se sueltan todas las solicitudes fijadas a mano y la fila completa queda ordenada con las reglas. ¿Seguro?', 'Ordenar')) return;
-      try { aplicarDatos(await conToken('ordenarFila')); toast('Fila ordenada según las reglas.'); } catch (e) { toast(msgError(e), true); }
+      await confirmar('Ordenar según las reglas', 'Se sueltan todas las solicitudes fijadas a mano y la fila completa queda ordenada con las reglas. ¿Seguro?', 'Ordenar',
+        async () => { aplicarDatos(await conToken('ordenarFila')); toast('Fila ordenada según las reglas.'); }, 'Ordenando…');
       return;
     }
     if (a === 'cerrar-mes') return cerrarMes();
@@ -1761,14 +1781,16 @@ document.addEventListener('click', async ev => {
       return;
     }
     if (a === 'retirar') {
-      if (!await confirmar('Retirar solicitud', 'La solicitud sale de la fila y queda como retirada. ¿Seguro?', 'Retirar solicitud')) return;
-      try { aplicarDatos(await conToken('retirarSolicitud', S.detalleId)); toast('Solicitud retirada.'); } catch (e) { toast(msgError(e), true); }
+      const id = S.detalleId;
+      await confirmar('Retirar solicitud', 'La solicitud sale de la fila y queda como retirada. ¿Seguro?', 'Retirar solicitud',
+        async motivo => { aplicarDatos(await conToken('retirarSolicitud', id, motivo)); toast('Solicitud retirada.'); }, 'Retirando…',
+        { etiqueta: 'Motivo del retiro', ayuda: 'Ej: ya no se necesita, se hizo por otro lado…' });
       return;
     }
     if (a === 'eliminar') {
       const id = S.detalleId;
-      if (!await confirmar('Eliminar ' + id, 'Se borra de la planilla y no se puede recuperar. El historial queda guardado.', 'Eliminar')) return;
-      try { aplicarDatos(await conToken('eliminarSolicitud', id)); cerrarCajon(); toast(id + ' eliminada.'); } catch (e) { toast(msgError(e), true); }
+      await confirmar('Eliminar ' + id, 'Se borra de la planilla y no se puede recuperar. El historial queda guardado.', 'Eliminar',
+        async () => { aplicarDatos(await conToken('eliminarSolicitud', id)); cerrarCajon(); toast(id + ' eliminada.'); }, 'Eliminando…');
       return;
     }
   }
@@ -1781,7 +1803,7 @@ document.addEventListener('click', async ev => {
 
 document.addEventListener('keydown', ev => {
   if (ev.key === 'Escape') {
-    if ($('#capa-confirmar').innerHTML) { $('#capa-confirmar').innerHTML = ''; return; }
+    if ($('#capa-confirmar').innerHTML) { const no = $('#conf-no'); if (no && !no.disabled) no.click(); return; }   // mientras procesa, Esc no lo cierra
     if (S.panelPersonas) { S.panelPersonas = ''; refrescarFiltros(); return; }
     if ($('#capa-modal').innerHTML) { if (!S.procesando) cerrarModal(); return; }
     if (!$('#menu-usuario').hidden) { alternarMenu(false); return; }
