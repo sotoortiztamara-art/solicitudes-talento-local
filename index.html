@@ -230,11 +230,20 @@ main{max-width:1360px;margin:0 auto;padding:26px 24px 60px}
 .grupo>header button{margin-left:auto}
 .grupo>header .acciones-grupo{margin-left:auto;display:flex;gap:8px;align-items:center}
 .grupo>header .acciones-grupo button{margin-left:0}
-.reglas{background:var(--blanco);border:1px solid var(--linea);border-left:4px solid var(--turquesa);border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:14px;color:var(--tinta-2);max-width:80ch}
-.reglas ol{margin:6px 0 8px;padding-left:20px}
-.reglas li{margin:2px 0}
-.reglas p{margin:6px 0 0}
-.reglas b{color:var(--tinta);font-weight:600}
+.reglas-modal .cuerpo{font-size:14.5px;color:var(--tinta-2);line-height:1.5}
+.reglas-modal h3{margin:16px 0 4px;font-family:var(--fuente-titulo);font-weight:600;font-size:17px;color:var(--tinta)}
+.reglas-modal ol{margin:4px 0 8px;padding-left:20px}
+.reglas-modal li{margin:3px 0}
+.reglas-modal p{margin:6px 0}
+.reglas-modal b{color:var(--tinta);font-weight:600}
+.reglas-modal p svg{width:15px;height:15px;vertical-align:-2px;color:var(--petroleo)}
+.fila .c-pos{display:flex;flex-direction:column;align-items:center;gap:4px}
+.fijada{display:inline-flex;align-items:center;justify-content:center;width:24px;height:22px;border:0;border-radius:5px;background:var(--petroleo-tinte);color:var(--petroleo);padding:0}
+.fijada svg{width:14px;height:14px}
+button.fijada{cursor:pointer}
+button.fijada:hover{background:var(--petroleo);color:#fff}
+.gestion .pie .fijada-txt{display:inline-flex;align-items:center;gap:4px;color:var(--petroleo)}
+.gestion .pie .fijada-txt svg{width:14px;height:14px}
 .tabla{background:var(--blanco);border:1px solid var(--linea);border-radius:var(--radio);overflow:hidden}
 .fila{display:grid;grid-template-columns:52px minmax(0,1fr) 180px 118px 96px 124px 140px 76px;align-items:center;gap:14px;padding:12px 16px 12px 8px;border-top:1px solid var(--linea);cursor:pointer;position:relative}
 .fila:first-child{border-top:0}
@@ -484,7 +493,7 @@ details[open] summary svg{transform:rotate(90deg)}
 const CLAVE_TOKEN = 'tl_solicitudes_token';
 const S = {
   token: null, datos: null, vista: 'fila', texto: '', excluidos: new Set(), estado: '', prioridad: '',
-  verCerradas: false, verListas: false, verRechazadas: false, verReglas: false, detalleId: null, detalleExtra: null,
+  verCerradas: false, verListas: false, verRechazadas: false, detalleId: null, detalleExtra: null,
   panelPersonas: '', buscarPersona: '',   // panelPersonas: '' cerrado, 'h' en la barra, 'm' en la ventana del mes
   procesando: 0,
   cal: { modal: false, mes: '', abierto: null }
@@ -510,6 +519,7 @@ const I = {
   abajo: '<path d="m6 9 6 6 6-6"/>',
   derecha: '<path d="m9 18 6-6-6-6"/>',
   izquierda: '<path d="m15 18-6-6 6-6"/>',
+  alfiler: '<path d="M12 17v5"/><path d="M9 10.8a2 2 0 0 1-1.1 1.8l-1.8.9A2 2 0 0 0 5 15.2V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.8a2 2 0 0 0-1.1-1.8l-1.8-.9A2 2 0 0 1 15 10.8V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>',
   calendario: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
   recargar: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
   clip: '<path d="m21.4 11.1-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/>',
@@ -987,32 +997,22 @@ function visibles() {
 /* ---------- Reglas de la fila (las mismas que usa Código.gs) ---------- */
 const DIAS_PRONTO = 2;
 function limiteProntoFila() { const d = partes(S.datos.hoy); d.setDate(d.getDate() + DIAS_PRONTO); return isoDe(d); }
-function claveFila(s, limite) {
-  const fecha = s.fechaComprometida || s.fechaRequerida || '';
-  let grupo = RANGO_P[s.prioridad] ?? 2;
-  if (grupo === 2 && fecha && fecha <= limite) grupo = 1;   // normal atrasada o que vence pronto: va con las altas
-  return [grupo, fecha || '9999-12-31', String(s.creada || ''), String(s.id || '')];
-}
-function compararFila(a, b, limite) {
-  const ka = claveFila(a, limite), kb = claveFila(b, limite);
-  for (let i = 0; i < ka.length; i++) { if (ka[i] < kb[i]) return -1; if (ka[i] > kb[i]) return 1; }
-  return 0;
-}
-/* ¿La fila completa sigue el orden de las reglas? (puede dejar de seguirlo si se movió a mano o si se acercaron fechas) */
-function filaSigueReglas() {
-  const fila = S.datos.solicitudes.filter(s => EN_FILA.includes(s.estado)).sort((a, b) => a.posicion - b.posicion);
-  const limite = limiteProntoFila();
-  const ideal = fila.slice().sort((a, b) => compararFila(a, b, limite));
-  return fila.every((s, i) => s === ideal[i]);
-}
-function reglasHtml() {
-  return '<div class="reglas" id="reglas-fila"><b>Cómo se ordena la fila sola</b><ol>' +
-    '<li>Primero las <b>urgentes</b>.</li>' +
-    '<li>Después las de prioridad <b>alta</b>, junto con las <b>normales atrasadas o que vencen en ' + DIAS_PRONTO + ' días o menos</b>.</li>' +
-    '<li>Después el resto de las <b>normales</b>.</li></ol>' +
-    'Dentro de cada grupo va primero la que vence antes (la fecha comprometida, si hay una; si no, la fecha de entrega). Las que no tienen fecha van al final de su grupo y, si todo empata, va primero la que llegó antes. Da lo mismo si está Recibida o En cola.' +
-    '<p>Las solicitudes nuevas, y las que cambian de prioridad o de fecha, se ubican solas con estas reglas. Lo que se mueve a mano con las flechas se respeta.' +
-    (nivel() >= 3 ? ' Si la fila deja de seguir las reglas (por movimientos a mano o porque se acercaron fechas), aparece el botón <b>Ordenar según las reglas</b>.' : '') + '</p></div>';
+function hayFijadas() { return S.datos.solicitudes.some(s => EN_FILA.includes(s.estado) && s.fijada === 'Sí'); }
+function abrirReglas() {
+  const g = nivel() >= 3;
+  ponerModal('<div class="modal-velo"><div class="modal chico reglas-modal" role="dialog" aria-modal="true" aria-labelledby="titulo-reglas">' +
+    '<header><h2 id="titulo-reglas">Cómo se ordena la fila</h2><button class="btn btn-fantasma btn-icono" data-acc="cerrar-modal" aria-label="Cerrar">' + ico('cerrar') + '</button></header>' +
+    '<div class="cuerpo">' +
+      '<p>La fila se ordena sola todo el tiempo: cuando llega una solicitud nueva, cuando cambia una prioridad o una fecha y a medida que se acercan las fechas.</p>' +
+      '<h3>Reglas</h3><ol>' +
+        '<li>Primero las <b>urgentes</b>.</li>' +
+        '<li>Después las de prioridad <b>alta</b>, junto con las <b>normales atrasadas o que vencen en ' + DIAS_PRONTO + ' días o menos</b> (bajo la fecha dicen "Vence pronto").</li>' +
+        '<li>Después el resto de las <b>normales</b>.</li></ol>' +
+      '<p>Dentro de cada grupo va primero la que vence antes: la fecha comprometida, si hay una; si no, la fecha de entrega. Las que no tienen fecha van al final de su grupo y, si todo empata, va primero la que llegó antes. Da lo mismo si está Recibida o En cola.</p>' +
+      '<h3>Orden a mano</h3>' +
+      '<p>' + (g ? 'Puedes' : 'Tamara puede') + ' mover una solicitud con las flechas. Esa solicitud queda <b>fijada</b> en ese lugar (se marca con ' + ico('alfiler') + ') y las demás se siguen ordenando solas alrededor. Si llega una nueva, se ubica con las reglas sin mover las fijadas.</p>' +
+      (g ? '<p>Para soltar una, haz clic en su alfiler. Para soltarlas todas, usa <b>Ordenar según las reglas</b>. Si le cambias la prioridad o la fecha comprometida a una fijada, se suelta sola.</p>' : '') +
+    '</div></div></div>');
 }
 
 function renderContenido() {
@@ -1039,13 +1039,13 @@ function renderFila() {
     enProceso.length ? plural(enProceso.length, 'solicitud', 'solicitudes') : '',
     'Nada en proceso', nivel() >= 3 ? 'Toma la primera de la fila y cámbiala a "En proceso".' : 'Cuando se empiece una solicitud, aparecerá aquí.');
   if (revision.length) html += grupo('Esperando aprobación', revision, 'revision', plural(revision.length, 'solicitud enviada', 'solicitudes enviadas') + ' a revisar', '', '');
-  const accionesFila = (nivel() >= 3 && !filaSigueReglas() ? '<button class="btn btn-chico" data-acc="ordenar-fila">Ordenar según las reglas</button>' : '') +
-    '<button class="btn btn-fantasma btn-chico" data-acc="ver-reglas" aria-expanded="' + !!S.verReglas + '" aria-controls="reglas-fila">' + (S.verReglas ? 'Ocultar reglas' : '¿Cómo se ordena?') + '</button>';
+  const accionesFila = (nivel() >= 3 && hayFijadas() ? '<button class="btn btn-chico" data-acc="ordenar-fila" title="Suelta las fijadas a mano">Ordenar según las reglas</button>' : '') +
+    '<button class="btn btn-fantasma btn-chico" data-acc="ver-reglas" aria-haspopup="dialog">¿Cómo se ordena?</button>';
   html += grupo('Fila de espera', fila, 'fila',
     fila.length ? plural(fila.length, 'solicitud', 'solicitudes') : '',
     filtrado ? 'No hay solicitudes en la fila con estos filtros' : 'La fila está vacía',
     filtrado ? 'Prueba quitando filtros.' : (nivel() >= 2 ? 'Las solicitudes nuevas llegan aquí y se ordenan solas.' : ''),
-    accionesFila, S.verReglas ? reglasHtml() : '');
+    accionesFila);
   if (pausadas.length) html += grupo('Pausadas', pausadas, 'pausa', plural(pausadas.length, 'solicitud', 'solicitudes'), '', '');
   html += grupoPlegable('Listas en los últimos 30 días', listas, 'lista', 'verListas');
   if (rechazadas.length) html += grupoPlegable('Rechazadas o retiradas', rechazadas, 'rechazo', 'verRechazadas');
@@ -1079,9 +1079,17 @@ function grupoPlegable(titulo, items, tipo, bandera) {
     (abierto && items.length ? '<div class="tabla" role="list">' + encabezadoTabla(tipo) + items.map(s => filaHtml(s, tipo)).join('') + '</div>' : '') + '</section>';
 }
 
+/* Marca de "fijada a mano": quien gestiona puede hacer clic para soltarla */
+function alfilerHtml(s) {
+  if (s.fijada !== 'Sí') return '';
+  return nivel() >= 3
+    ? '<button class="fijada" data-soltar="' + esc(s.id) + '" title="Fijada a mano en este lugar. Clic para soltarla y que se ordene sola." aria-label="Soltar ' + esc(s.id) + '">' + ico('alfiler') + '</button>'
+    : '<span class="fijada" title="Tamara la fijó en este lugar">' + ico('alfiler') + '</span>';
+}
+
 function filaHtml(s, tipo) {
   const g = nivel() >= 3;
-  const pos = tipo === 'fila' ? '<span class="pos">' + s.posicion + '</span>'
+  const pos = tipo === 'fila' ? '<span class="pos">' + s.posicion + '</span>' + alfilerHtml(s)
     : '<span class="pos punto" style="color:' + ({ proceso: 'var(--petroleo)', revision: 'var(--ciruela)', pausa: 'var(--ambar)', lista: 'var(--verde)', rechazo: (s.estado === 'Retirada' ? '#9AA6AB' : 'var(--magenta)') }[tipo]) + '"></span>';
   const sub = [
     '<span>' + esc(s.id) + '</span>', '<span>' + esc(s.tipo) + '</span>', '<span>' + esc(s.area) + '</span>',
@@ -1259,7 +1267,8 @@ function gestionHtml(s) {
       '<label class="campo"><span>Fecha comprometida</span><input class="entrada" type="date" id="g-fecha" value="' + esc(s.fechaComprometida) + '"></label>' +
     '</div>' +
     '<label class="campo"><span>Nota para quien pidió <small>(opcional, queda como comentario y va en el aviso)</small></span><textarea class="entrada" id="gestion-nota" rows="2" style="min-height:64px" placeholder="Ej: la dejé en pausa hasta que llegue el texto final."></textarea></label>' +
-    '<div class="pie"><span class="lugar">' + (s.posicion ? 'Lugar ' + s.posicion + ' de ' + S.datos.carga.enFila + ' en la fila' : '') + '</span>' +
+    '<div class="pie"><span class="lugar">' + (s.posicion ? 'Lugar ' + s.posicion + ' de ' + S.datos.carga.enFila + ' en la fila' : '') +
+      (s.fijada === 'Sí' ? ' · <span class="fijada-txt">' + ico('alfiler') + 'fijada</span> <button class="btn btn-fantasma btn-chico" data-soltar="' + esc(s.id) + '">Soltar</button>' : '') + '</span>' +
       (s.posicion ? '<button class="btn btn-chico" data-mover="arriba" data-id="' + esc(s.id) + '"' + (s.posicion === 1 ? ' disabled' : '') + '>' + ico('arriba') + 'Subir</button><button class="btn btn-chico" data-mover="abajo" data-id="' + esc(s.id) + '"' + (s.posicion === S.datos.carga.enFila ? ' disabled' : '') + '>' + ico('abajo') + 'Bajar</button>' : '') +
       '<button class="btn btn-primario btn-chico" data-acc="guardar-gestion">Guardar cambios</button></div></section>';
 }
@@ -1679,11 +1688,22 @@ document.addEventListener('click', async ev => {
   const plegar = t.closest('[data-plegar]');
   if (plegar) { S[plegar.dataset.plegar] = !S[plegar.dataset.plegar]; renderFila(); return; }
 
+  const soltar = t.closest('[data-soltar]');
+  if (soltar) {
+    ev.stopPropagation();
+    try { aplicarDatos(await ocupado(soltar, '…', () => conToken('soltarEnFila', soltar.dataset.soltar))); toast('Se soltó: vuelve a ordenarse sola.'); }
+    catch (e) { toast(msgError(e), true); }
+    return;
+  }
   const mover = t.closest('[data-mover]');
   if (mover) {
     ev.stopPropagation();
     if (mover.disabled) return;
-    try { aplicarDatos(await ocupado(mover, '…', () => conToken('moverEnFila', mover.dataset.id, mover.dataset.mover))); }
+    try {
+      aplicarDatos(await ocupado(mover, '…', () => conToken('moverEnFila', mover.dataset.id, mover.dataset.mover)));
+      const s = S.datos.solicitudes.find(x => x.id === mover.dataset.id);
+      if (s && s.posicion) toast('Quedó fijada en el lugar ' + s.posicion + '.');
+    }
     catch (e) { toast(msgError(e), true); }
     return;
   }
@@ -1718,9 +1738,9 @@ document.addEventListener('click', async ev => {
     if (a === 'cerrar-personas') { S.panelPersonas = ''; refrescarFiltros(); return; }
     if (a === 'solo-yo') { S.excluidos = new Set(personasConPedidos().map(p => p.email).filter(e => e !== S.datos.yo.email)); S.panelPersonas = ''; refrescarFiltros(); renderContenido(); return; }
     if (a === 'ver-mes') return abrirMes();
-    if (a === 'ver-reglas') { S.verReglas = !S.verReglas; renderFila(); return; }
+    if (a === 'ver-reglas') return abrirReglas();
     if (a === 'ordenar-fila') {
-      if (!await confirmar('Ordenar la fila', 'La fila se ordena con las reglas y se pierden los cambios hechos a mano con las flechas. ¿Seguro?', 'Ordenar')) return;
+      if (!await confirmar('Ordenar según las reglas', 'Se sueltan todas las solicitudes fijadas a mano y la fila completa queda ordenada con las reglas. ¿Seguro?', 'Ordenar')) return;
       try { aplicarDatos(await conToken('ordenarFila')); toast('Fila ordenada según las reglas.'); } catch (e) { toast(msgError(e), true); }
       return;
     }
