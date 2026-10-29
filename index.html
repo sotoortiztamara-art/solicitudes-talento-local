@@ -273,7 +273,7 @@ button.fijada:hover{background:var(--petroleo);color:#fff}
 .vacio b{display:block;color:var(--tinta);font-weight:500;margin-bottom:2px}
 
 /* ---------- vista tablero ---------- */
-.tablero{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:14px;overflow-x:auto;padding-bottom:12px;align-items:start}
+.tablero{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:14px;overflow-x:auto;padding-bottom:12px;align-items:stretch}   /* todas las columnas del alto de la más alta */
 .columna{background:#E7EEF0;border-radius:var(--radio);padding:10px;min-height:200px;transition:background .15s,box-shadow .15s}
 .columna.sobre{background:var(--turquesa-tinte);box-shadow:inset 0 0 0 2px var(--turquesa)}
 .columna>header{display:flex;align-items:center;gap:8px;padding:2px 4px 10px}
@@ -1155,7 +1155,7 @@ function renderTablero() {
   $('#contenido').innerHTML =
     '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;font-size:14px;color:var(--tinta-3)">' +
       '<span>' + (g ? 'Arrastra una tarjeta a otra columna para cambiar su estado.' : 'Toca una tarjeta para ver el detalle.') + '</span>' +
-      '<label class="check" style="margin-left:auto"><input type="checkbox" id="ver-cerradas"' + (S.verCerradas ? ' checked' : '') + '> Ver pausadas, rechazadas y retiradas' + (pausadas ? ' (' + pausadas + ' pausadas)' : '') + '</label></div>' +
+      '<label class="check" style="margin-left:auto"><input type="checkbox" id="ver-cerradas"' + (S.verCerradas ? ' checked' : '') + '> Ver pausadas, rechazadas y retiradas' + (pausadas ? ' (' + plural(pausadas, 'pausada', 'pausadas') + ')' : '') + '</label></div>' +
     '<div class="tablero">' + html + '</div>';
   $('#ver-cerradas').addEventListener('change', e => { S.verCerradas = e.target.checked; renderTablero(); });
   if (g) activarArrastre();
