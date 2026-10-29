@@ -65,6 +65,8 @@ textarea.entrada{height:auto;min-height:96px;padding:10px 12px;resize:vertical;l
 .entrada:focus{outline:none;border-color:var(--turquesa-oscuro);box-shadow:0 0 0 3px rgba(29,160,150,.18)}
 select.entrada{appearance:none;padding-right:34px;background:var(--blanco) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234C636D' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 12px center no-repeat}
 .error-campo{color:var(--magenta);font-size:13px}
+.campo.falta .entrada,.campo.falta .lista-btn{border-color:var(--magenta);background-color:#FDF4F8;box-shadow:0 0 0 3px rgba(162,32,92,.13)}
+.falta-msg{display:inline-block;margin-left:8px;padding:1px 9px;border-radius:999px;background:var(--magenta);color:#fff;font-size:12px;font-weight:600;line-height:18px;vertical-align:1px}
 .segmentado{display:inline-flex;align-self:flex-start;border:1px solid var(--linea-fuerte);border-radius:var(--radio-chico);overflow:hidden;background:var(--blanco)}
 .segmentado button{border:0;background:transparent;padding:0 14px;height:36px;cursor:pointer;color:var(--tinta-2);font-weight:500;border-right:1px solid var(--linea)}
 .segmentado button:last-child{border-right:0}
@@ -240,7 +242,6 @@ main{max-width:1360px;margin:0 auto;padding:26px 24px 60px}
 .reglas-modal p{margin:6px 0}
 .reglas-modal b{color:var(--tinta);font-weight:600}
 .reglas-modal p svg{width:15px;height:15px;vertical-align:-2px;color:var(--petroleo)}
-.fila .c-pos{display:flex;flex-direction:column;align-items:center;gap:4px}
 .fijada{display:inline-flex;align-items:center;justify-content:center;width:24px;height:22px;border:0;border-radius:5px;background:var(--petroleo-tinte);color:var(--petroleo);padding:0}
 .fijada svg{width:14px;height:14px}
 button.fijada{cursor:pointer}
@@ -248,7 +249,7 @@ button.fijada:hover{background:var(--petroleo);color:#fff}
 .gestion .pie .fijada-txt{display:inline-flex;align-items:center;gap:4px;color:var(--petroleo)}
 .gestion .pie .fijada-txt svg{width:14px;height:14px}
 .tabla{background:var(--blanco);border:1px solid var(--linea);border-radius:var(--radio);overflow:hidden}
-.fila{display:grid;grid-template-columns:52px minmax(0,1fr) 180px 118px 96px 124px 140px 76px;align-items:center;gap:14px;padding:12px 16px 12px 8px;border-top:1px solid var(--linea);cursor:pointer;position:relative}
+.fila{display:grid;grid-template-columns:52px minmax(0,1fr) 180px 118px 96px 124px 140px 104px;align-items:center;gap:14px;padding:12px 16px 12px 8px;border-top:1px solid var(--linea);cursor:pointer;position:relative}
 .fila:first-child{border-top:0}
 .fila:hover{background:#F7FAFA}
 .fila.encabezado{cursor:default;background:#F7FAFA;font-size:13px;color:var(--tinta-3);padding-top:8px;padding-bottom:8px}
@@ -264,7 +265,8 @@ button.fijada:hover{background:var(--petroleo);color:#fff}
 .dato small{display:block;font-size:12px;color:var(--tinta-3)}
 .dato.tarde,.dato.tarde small{color:var(--magenta)}
 .dato .pronto{color:var(--ambar);font-weight:600}
-.acciones-fila{display:flex;gap:4px;justify-content:flex-end}
+.acciones-fila{display:flex;gap:4px;justify-content:flex-end;align-items:center}
+.hueco-fijada{width:28px;display:inline-flex;justify-content:center;flex:none}
 .acciones-fila .btn{width:32px;height:32px;padding:0}
 .vacio{padding:26px 20px;text-align:center;color:var(--tinta-3);background:var(--blanco);border:1px dashed var(--linea-fuerte);border-radius:var(--radio)}
 .vacio b{display:block;color:var(--tinta);font-weight:500;margin-bottom:2px}
@@ -395,7 +397,7 @@ details[open] summary svg{transform:rotate(90deg)}
 
 /* ---------- pantallas chicas ---------- */
 @media (max-width:1100px){
-  .fila{grid-template-columns:44px minmax(0,1fr) 150px 112px 110px 120px 70px}
+  .fila{grid-template-columns:44px minmax(0,1fr) 150px 112px 110px 120px 100px}
   .fila .c-prio{display:none}
 }
 @media (max-width:860px){
@@ -406,7 +408,7 @@ details[open] summary svg{transform:rotate(90deg)}
   main{padding:18px 16px 50px}
   .fila{grid-template-columns:34px minmax(0,1fr) minmax(0,1fr);grid-template-areas:"pos tit tit" "pos per estado" "pos fec est" "pos acc acc";gap:8px 10px;padding:12px 12px 12px 6px}
   .fila .c-estado{grid-area:estado;justify-self:end}
-  .fila .c-acc:not(:has(button)){display:none}
+  .fila .c-acc:not(:has(button, .fijada)){display:none}
   #btn-nuevo{width:40px;padding:0}
   #btn-nuevo span{display:none}
   .fila.encabezado{display:none}
@@ -1093,7 +1095,7 @@ function alfilerHtml(s) {
 
 function filaHtml(s, tipo) {
   const g = nivel() >= 3;
-  const pos = tipo === 'fila' ? '<span class="pos">' + s.posicion + '</span>' + alfilerHtml(s)
+  const pos = tipo === 'fila' ? '<span class="pos">' + s.posicion + '</span>'
     : '<span class="pos punto" style="color:' + ({ proceso: 'var(--petroleo)', revision: 'var(--ciruela)', pausa: 'var(--ambar)', lista: 'var(--verde)', rechazo: (s.estado === 'Retirada' ? '#9AA6AB' : 'var(--magenta)') }[tipo]) + '"></span>';
   const sub = [
     '<span>' + esc(s.id) + '</span>', '<span>' + esc(s.tipo) + '</span>', '<span>' + esc(s.area) + '</span>',
@@ -1114,8 +1116,10 @@ function filaHtml(s, tipo) {
   else if (tipo === 'proceso') est = '<div class="dato">' + esc(fMomento(s.inicio)) + (s.fechaComprometida ? '<small>Comprometida: ' + esc(fCorta(s.fechaComprometida)) + '</small>' : '') + '</div>';
   else if (tipo === 'lista') est = '<div class="dato">' + esc(fMomento(s.termino)) + '</div>';
   else est = '<div class="dato">' + esc(fMomento(s.actualizada)) + '</div>';
-  const acc = (g && tipo === 'fila') ? '<div class="acciones-fila"><button class="btn" data-mover="arriba" data-id="' + esc(s.id) + '" aria-label="Subir en la fila" title="Subir"' + (s.posicion === 1 ? ' disabled' : '') + '>' + ico('arriba') + '</button>' +
-    '<button class="btn" data-mover="abajo" data-id="' + esc(s.id) + '" aria-label="Bajar en la fila" title="Bajar"' + (s.posicion === S.datos.carga.enFila ? ' disabled' : '') + '>' + ico('abajo') + '</button></div>' : '<div></div>';
+  // El alfiler va a la izquierda de las flechas, en un espacio reservado para que las flechas queden alineadas
+  const acc = (g && tipo === 'fila') ? '<div class="acciones-fila"><span class="hueco-fijada">' + alfilerHtml(s) + '</span><button class="btn" data-mover="arriba" data-id="' + esc(s.id) + '" aria-label="Subir en la fila" title="Subir"' + (s.posicion === 1 ? ' disabled' : '') + '>' + ico('arriba') + '</button>' +
+    '<button class="btn" data-mover="abajo" data-id="' + esc(s.id) + '" aria-label="Bajar en la fila" title="Bajar"' + (s.posicion === S.datos.carga.enFila ? ' disabled' : '') + '>' + ico('abajo') + '</button></div>' :
+    (tipo === 'fila' && s.fijada === 'Sí' ? '<div class="acciones-fila">' + alfilerHtml(s) + '</div>' : '<div></div>');
   return '<div class="fila' + (s.prioridad === 'Urgente' && !CERRADOS.includes(s.estado) ? ' urgente' : '') + '" role="listitem" tabindex="0" data-abrir="' + esc(s.id) + '">' +
     '<div class="c-pos">' + pos + '</div>' +
     '<div class="c-tit"><div class="tit">' + esc(s.titulo) + '</div><div class="sub">' + sub + '</div></div>' +
@@ -1365,13 +1369,7 @@ function abrirFormulario(s) {
     ev.preventDefault();
     const val = n => form.querySelector('[name="' + n + '"]').value.trim();
     const datos = { titulo: val('titulo'), tipo: val('tipo'), area: val('area'), fechaRequerida: val('fechaRequerida'), descripcion: val('descripcion'), links: val('links'), prioridad: form.dataset.prioridad };
-    const errores = {};
-    if (!datos.titulo) errores.titulo = 'Escribe qué necesitas.';
-    if (!datos.tipo) errores.tipo = 'Elige el tipo de pieza.';
-    if (!datos.area) errores.area = 'Elige el área.';
-    if (!datos.descripcion) errores.descripcion = 'Cuenta el detalle de lo que necesitas.';
-    $$('[data-error]', form).forEach(e => { e.textContent = errores[e.dataset.error] || ''; });
-    if (Object.keys(errores).length) { enfocarCampo(form, Object.keys(errores)[0]); return; }
+    if (!revisarObligatorios(form)) return;
     const archivos = fi ? Array.from(fi.files) : [];
     const grande = archivos.find(f => f.size > d.config.maxMb * 1048576);
     if (grande) { mostrarErrorForm('"' + grande.name + '" pesa más de ' + d.config.maxMb + ' MB. Súbelo a Drive y pega el link.'); return; }
@@ -1403,6 +1401,35 @@ function ayudaPrioridad(p) {
   if (p === 'Alta') return 'Va antes que las normales; entre las altas, primero la que vence antes.';
   return 'Se ordena por fecha de entrega. Si vence en ' + DIAS_PRONTO + ' días o menos, sube junto a las de prioridad alta.';
 }
+/* Revisa los campos con * de un formulario: a los vacíos les pone "Obligatorio" y el foco va al primero */
+function revisarObligatorios(form) {
+  let primero = null;
+  $$('.campo', form).forEach(campo => {
+    const et = campo.querySelector(':scope > span');
+    if (!et || !et.querySelector('.req')) return;
+    const lista = campo.querySelector('.lista-desp');
+    const control = campo.querySelector('input:not([type="hidden"]):not([type="file"]), textarea') || lista;
+    if (!control) return;
+    const valor = control === lista ? lista.querySelector('input[type="hidden"]').value : control.value;
+    const vacio = !String(valor || '').trim();
+    marcarFalta(campo, vacio);
+    if (vacio && !primero) primero = control === lista ? lista.querySelector('.lista-btn') : control;
+  });
+  if (primero) { primero.focus(); return false; }
+  return true;
+}
+function marcarFalta(campo, falta) {
+  campo.classList.toggle('falta', falta);
+  const et = campo.querySelector(':scope > span'), m = et.querySelector('.falta-msg');
+  if (falta && !m) et.querySelector('.req').insertAdjacentHTML('afterend', '<span class="falta-msg">Obligatorio</span>');
+  if (!falta && m) m.remove();
+}
+/* Al escribir en un campo marcado, se le quita la marca */
+document.addEventListener('input', ev => {
+  const c = ev.target.closest && ev.target.closest('.campo.falta');
+  if (c && String(ev.target.value || '').trim()) marcarFalta(c, false);
+});
+
 function mostrarErrorForm(t) { const e = $('#form-error'); if (e) { e.textContent = t; e.hidden = false; } else toast(t, true); }
 function cerrarModal() { $('#capa-modal').innerHTML = ''; }
 /* Cambia el contenido de una ventana ya abierta sin volver a animarla */
@@ -1493,6 +1520,7 @@ function renderUsuarios(editando) {
   const form = $('#form-usuario');
   form.addEventListener('submit', async ev => {
     ev.preventDefault();
+    if (!revisarObligatorios(form)) return;
     const val = n => form.querySelector('[name="' + n + '"]').value.trim();
     const datos = { nombre: val('nombre'), email: val('email'), rol: val('rol') || 'Administrador', area: val('area'), clave: val('clave'), activo: val('activo') || 'Sí' };
     try {
@@ -1556,6 +1584,8 @@ document.addEventListener('cambio', ev => {
   else if (d.nombre === 'f-prioridad' || d.nombre === 'm-prioridad') { S.prioridad = d.valor; otrosFiltros(d.nombre); renderContenido(); }
   const form = ev.target.closest && ev.target.closest('form');
   if (form) { const e = form.querySelector('[data-error="' + d.nombre + '"]'); if (e) e.textContent = ''; }
+  const marcado = ev.target.closest && ev.target.closest('.campo.falta');
+  if (marcado && d.valor) marcarFalta(marcado, false);
 });
 /* Al cambiar un filtro en la barra se actualiza la ventana del mes, y al revés (sin redibujar la lista que se está usando) */
 function otrosFiltros(nombre) {
@@ -1618,6 +1648,7 @@ function abrirConfig() {
   const form = $('#form-config');
   form.addEventListener('submit', async ev => {
     ev.preventDefault();
+    if (!revisarObligatorios(form)) return;
     const d = {};
     $$('[name]', form).forEach(el => { d[el.name] = el.value.trim(); });
     try { aplicarDatos(await ocupado($('#btn-cfg'), 'Guardando…', () => conToken('guardarConfig', d))); cerrarModal(); toast('Configuración guardada.'); }
@@ -1636,6 +1667,7 @@ function abrirCambioClave() {
   const form = $('#form-clave');
   form.addEventListener('submit', async ev => {
     ev.preventDefault();
+    if (!revisarObligatorios(form)) return;
     try {
       await ocupado($('#btn-clave'), 'Guardando…', () => conToken('cambiarMiClave', form.actual.value, form.nueva.value));
       cerrarModal(); toast('Contraseña cambiada.');
